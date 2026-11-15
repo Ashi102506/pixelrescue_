@@ -11,11 +11,36 @@ import {
   ExperimentItem,
 } from '../types/dip';
 
+const getBaseApiUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('pixelrescue_api_url');
+    if (saved) return saved;
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      const viteEnv = import.meta.env.VITE_API_URL;
+      if (viteEnv) return viteEnv;
+      return 'http://localhost:8000/api';
+    }
+  }
+  return '/api';
+};
+
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+client.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('pixelrescue_api_url');
+    if (saved) {
+      config.baseURL = saved;
+    } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      config.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    }
+  }
+  return config;
 });
 
 export const api = {
