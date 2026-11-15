@@ -104,22 +104,34 @@ export const EnhancementLab: React.FC = () => {
     }
   };
 
+  const tabs = [
+    { id: 'intensity', label: 'Point Transfer' },
+    { id: 'histogram', label: 'PDF / CDF' },
+    { id: 'equalization', label: 'Equalize' },
+    { id: 'specification', label: 'Match' },
+  ] as const;
+
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-obsidian-950">
       {/* Center Image Workspace */}
-      <div className="flex-1 p-4 flex flex-col min-w-0">
+      <div className="flex-1 p-3 flex flex-col min-w-0">
         <ImageViewer />
       </div>
 
-      {/* Right Inspector & Controls */}
-      <div className="w-full lg:w-96 bg-charcoal-900 border-l border-slate-800 p-5 overflow-y-auto space-y-6 select-none shrink-0">
+      {/* Right Precision Telemetry & Controls */}
+      <div className="w-full lg:w-96 bg-obsidian-900 border-l border-hairline p-4 overflow-y-auto space-y-4 select-none shrink-0 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <span className="text-[10px] font-mono text-purple-400 font-semibold tracking-wider uppercase">
-              Module 2
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-mono text-purple-400 font-semibold px-1.5 py-0.5 rounded bg-purple-950/50 border border-purple-800/40">
+              02
             </span>
-            <h2 className="text-lg font-bold text-white tracking-tight">Enhancement Studio</h2>
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Enhancement Studio
+              </h2>
+              <p className="text-[10px] font-mono text-slate-500">Spatial Point & Histogram Mapping</p>
+            </div>
           </div>
           <button
             onClick={() =>
@@ -140,65 +152,45 @@ export const EnhancementLab: React.FC = () => {
                 reference: 'Gonzalez & Woods, Digital Image Processing, Section 3.2 & 3.3',
               })
             }
-            className="p-1.5 rounded-lg bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-colors"
+            className="p-1.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-400 hover:text-slate-200 transition-colors"
+            title="Algorithm Theory"
           >
-            <HelpCircle size={16} className="text-purple-400" />
+            <HelpCircle size={13} className="text-purple-400" />
           </button>
         </div>
 
         {/* Tab Selection */}
-        <div className="grid grid-cols-2 gap-1 bg-charcoal-950 p-1 rounded-lg border border-slate-800 text-xs">
-          <button
-            onClick={() => setActiveTab('intensity')}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'intensity' ? 'bg-purple-500/20 text-purple-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Intensity Transforms
-          </button>
-          <button
-            onClick={() => setActiveTab('histogram')}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'histogram' ? 'bg-purple-500/20 text-purple-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Histogram & CDF
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('equalization');
-              handleEqualize();
-            }}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'equalization' ? 'bg-purple-500/20 text-purple-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Equalization
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('specification');
-              handleSpecify();
-            }}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'specification' ? 'bg-purple-500/20 text-purple-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Matching
-          </button>
+        <div className="grid grid-cols-4 gap-1 bg-obsidian-950 p-1 rounded-md border border-hairline text-[11px] font-mono">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (tab.id === 'equalization') handleEqualize();
+                if (tab.id === 'specification') handleSpecify();
+              }}
+              className={`py-1.5 px-1 rounded transition-colors text-center truncate ${
+                activeTab === tab.id
+                  ? 'bg-surface-raised text-purple-300 font-semibold border border-hairline shadow-sm'
+                  : 'text-slate-400 hover:text-slate-300 hover:bg-surface-raised/40'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Tab 1: Intensity Transformations */}
         {activeTab === 'intensity' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-1.5 bg-charcoal-950 p-1.5 rounded-lg border border-slate-800 text-xs font-mono">
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-1.5 bg-obsidian-950 p-1.5 rounded border border-hairline text-[11px] font-mono">
               {[
-                { id: 'negative', label: 'Negative' },
+                { id: 'negative', label: 'Negative (Inv)' },
                 { id: 'log', label: 'Logarithm' },
                 { id: 'inv_log', label: 'Inverse Log' },
-                { id: 'gamma', label: 'Gamma (Power)' },
-                { id: 'contrast_stretch', label: 'Stretching' },
-                { id: 'threshold', label: 'Thresholding' },
+                { id: 'gamma', label: 'Power-Law (γ)' },
+                { id: 'contrast_stretch', label: 'Piecewise Stretch' },
+                { id: 'threshold', label: 'Binary Threshold' },
                 { id: 'brightness_contrast', label: 'Linear Scaling' },
               ].map((op) => (
                 <button
@@ -207,10 +199,10 @@ export const EnhancementLab: React.FC = () => {
                     setSelectedTransform(op.id);
                     handleApplyTransform(op.id);
                   }}
-                  className={`py-1.5 px-2 rounded text-left transition-colors truncate ${
+                  className={`py-1.5 px-2 rounded text-left transition-colors truncate text-[11px] ${
                     selectedTransform === op.id
-                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-surface-raised text-purple-300 border border-purple-800/60 font-semibold shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-surface-raised/30'
                   }`}
                 >
                   {op.label}
@@ -219,11 +211,11 @@ export const EnhancementLab: React.FC = () => {
             </div>
 
             {/* Parameter Controls for Active Transform */}
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
               {selectedTransform === 'gamma' && (
-                <div>
+                <div className="space-y-3">
                   <ParameterSlider
-                    label="Gamma Exponent (γ)"
+                    label="Gamma Parameter (γ)"
                     value={gamma}
                     min={0.1}
                     max={4.0}
@@ -234,7 +226,7 @@ export const EnhancementLab: React.FC = () => {
                       handleApplyTransform('gamma');
                     }}
                   />
-                  <div className="text-[11px] font-mono text-purple-400 mt-2 bg-charcoal-900 p-2 rounded border border-purple-900/30 text-center">
+                  <div className="text-[11px] font-mono text-purple-300 bg-obsidian-950 p-2 rounded border border-hairline text-center">
                     s = 255 · (r / 255)^{gamma.toFixed(2)}
                   </div>
                 </div>
@@ -243,7 +235,7 @@ export const EnhancementLab: React.FC = () => {
               {selectedTransform === 'brightness_contrast' && (
                 <div className="space-y-3">
                   <ParameterSlider
-                    label="Contrast Slope (α)"
+                    label="Contrast Gain (α)"
                     value={contrastAlpha}
                     min={0.2}
                     max={3.0}
@@ -254,7 +246,7 @@ export const EnhancementLab: React.FC = () => {
                     }}
                   />
                   <ParameterSlider
-                    label="Brightness Shift (β)"
+                    label="Brightness Bias (β)"
                     value={brightnessBeta}
                     min={-100}
                     max={100}
@@ -271,7 +263,7 @@ export const EnhancementLab: React.FC = () => {
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <ParameterSlider
-                      label="r1 (input low)"
+                      label="r1 (input min)"
                       value={r1}
                       min={1}
                       max={r2 - 1}
@@ -281,7 +273,7 @@ export const EnhancementLab: React.FC = () => {
                       }}
                     />
                     <ParameterSlider
-                      label="s1 (output low)"
+                      label="s1 (output min)"
                       value={s1}
                       min={0}
                       max={255}
@@ -293,7 +285,7 @@ export const EnhancementLab: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <ParameterSlider
-                      label="r2 (input high)"
+                      label="r2 (input max)"
                       value={r2}
                       min={r1 + 1}
                       max={254}
@@ -303,7 +295,7 @@ export const EnhancementLab: React.FC = () => {
                       }}
                     />
                     <ParameterSlider
-                      label="s2 (output high)"
+                      label="s2 (output max)"
                       value={s2}
                       min={0}
                       max={255}
@@ -318,12 +310,12 @@ export const EnhancementLab: React.FC = () => {
 
               {selectedTransform === 'threshold' && (
                 <ParameterSlider
-                  label="Global Threshold (T)"
+                  label="Binarization Cutoff (T)"
                   value={binaryThreshold}
                   min={0}
                   max={255}
                   step={1}
-                  description="s = 255 if r >= T else 0"
+                  description="s = 255 if r ≥ T else 0"
                   onChange={(val) => {
                     setBinaryThreshold(val);
                     handleApplyTransform('threshold');
@@ -332,20 +324,20 @@ export const EnhancementLab: React.FC = () => {
               )}
 
               {selectedTransform === 'negative' && (
-                <div className="text-xs text-slate-300">
-                  Mathematical photographic negative: Inverts all pixel amplitudes according to <code>s = 255 - r</code>.
+                <div className="text-[11px] font-mono text-slate-400 bg-obsidian-950 p-2.5 rounded border border-hairline">
+                  Photographic Inversion: s = 255 - r
                 </div>
               )}
 
               {selectedTransform === 'log' && (
-                <div className="text-xs text-slate-300">
-                  Log transformation compresses large dynamic variations: <code>s = c · ln(1 + r)</code>. Crucial for visualizing Fourier spectrums.
+                <div className="text-[11px] font-mono text-slate-400 bg-obsidian-950 p-2.5 rounded border border-hairline">
+                  Dynamic Range Compression: s = c · ln(1 + r)
                 </div>
               )}
 
               {selectedTransform === 'inv_log' && (
-                <div className="text-xs text-slate-300">
-                  Inverse-log / exponential mapping: Expands bright pixels while compressing dark levels.
+                <div className="text-[11px] font-mono text-slate-400 bg-obsidian-950 p-2.5 rounded border border-hairline">
+                  Exponential Expansion: s = c · (e^(r/c) - 1)
                 </div>
               )}
             </div>
@@ -354,45 +346,49 @@ export const EnhancementLab: React.FC = () => {
 
         {/* Tab 2: Histogram & CDF */}
         {activeTab === 'histogram' && histData && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800">
-              <div className="flex justify-between items-center text-xs font-mono mb-3">
-                <span className="text-purple-400 font-semibold uppercase">256-Bin Intensity Histogram</span>
-                <span className="text-slate-400">PDF & CDF</span>
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-2.5">
+              <div className="flex justify-between items-center text-[10px] font-mono">
+                <span className="text-purple-400 uppercase tracking-wider font-semibold">
+                  256-Bin Discrete Intensity PDF
+                </span>
+                <span className="text-slate-400">
+                  Total: {histData.channels.gray.counts.reduce((a, b) => a + b, 0)} px
+                </span>
               </div>
 
-              {/* Bar Chart Visualization (SVG) */}
-              <div className="h-36 w-full flex items-end space-x-0.5 bg-charcoal-900 p-2 rounded-lg border border-slate-800/80 overflow-hidden">
+              {/* Scientific Monochromatic Bar Spectrum */}
+              <div className="h-32 w-full flex items-end space-x-px bg-obsidian-950 p-1.5 rounded border border-hairline overflow-hidden">
                 {histData.channels.gray.counts.map((cnt, i) => {
-                  if (i % 4 !== 0) return null; // sample for display
+                  if (i % 2 !== 0) return null; // 128 sampled bins
                   const maxCount = Math.max(...histData.channels.gray.counts);
                   const hPercent = (cnt / (maxCount || 1)) * 100;
                   return (
                     <div
                       key={i}
-                      style={{ height: `${Math.max(2, hPercent)}%` }}
-                      className="flex-1 bg-gradient-to-t from-purple-700 to-cyan-400 rounded-t-sm"
-                      title={`Intensity ${i}: ${cnt} pixels`}
+                      style={{ height: `${Math.max(1, hPercent)}%` }}
+                      className="flex-1 bg-slate-300 hover:bg-cyan-400 transition-colors"
+                      title={`Intensity [${i}]: ${cnt} samples`}
                     />
                   );
                 })}
               </div>
 
               {/* Intensity Axis */}
-              <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
-                <span>0 (Black)</span>
+              <div className="flex justify-between text-[10px] font-mono text-slate-500 pt-1">
+                <span>0 (Min)</span>
                 <span>128 (Mid)</span>
-                <span>255 (White)</span>
+                <span>255 (Max)</span>
               </div>
             </div>
 
-            {/* CDF Visualization */}
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <span className="text-xs font-mono text-cyan-400 font-semibold uppercase block mb-1">
-                Cumulative Distribution Function (CDF)
+            {/* CDF Technical Summary */}
+            <div className="bg-obsidian-950 p-3 rounded-lg border border-hairline text-[11px] font-mono text-slate-400 space-y-1">
+              <span className="text-purple-400 font-semibold uppercase text-[10px] block">
+                Cumulative Distribution Function:
               </span>
-              <p className="text-[11px] text-slate-400 leading-tight">
-                Normalized sum of probabilities ending at exactly 1.0. The shape of the CDF directly governs the histogram equalization transfer curve.
+              <p className="text-slate-400 leading-relaxed font-sans">
+                Normalized sum of discrete probabilities monotonically accumulating to 1.0. Its derivative corresponds to the probability density function (PDF).
               </p>
             </div>
           </div>
@@ -400,33 +396,33 @@ export const EnhancementLab: React.FC = () => {
 
         {/* Tab 3: Equalization */}
         {activeTab === 'equalization' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-purple-400 font-semibold uppercase">
-                  Discrete Transformation LUT
+                <span className="text-[10px] font-mono text-purple-400 uppercase tracking-wider font-semibold">
+                  CDF-Based Transfer LUT
                 </span>
                 <button
                   onClick={handleEqualize}
-                  className="px-2.5 py-1 bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/50 text-purple-200 text-xs rounded flex items-center space-x-1"
+                  className="px-2 py-1 bg-surface-overlay hover:bg-obsidian-950 border border-hairline text-slate-300 text-[10px] font-mono rounded flex items-center space-x-1"
                 >
-                  <RefreshCw size={12} />
-                  <span>Re-run</span>
+                  <RefreshCw size={11} />
+                  <span>Re-calculate</span>
                 </button>
               </div>
 
-              <div className="text-xs text-slate-300 leading-relaxed">
-                Applies the probability integral transform discrete mapping:
-                <div className="py-2 text-center text-sm font-mono text-cyan-300">
-                  s_k = round( 255 · ∑ p_r(r_j) )
+              <div className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Generates a uniform histogram distribution through the transformation:
+                <div className="py-2 text-center text-xs font-mono text-purple-300 bg-obsidian-950 rounded border border-hairline my-2">
+                  s_k = round( (L - 1) · ∑ p_r(r_j) )
                 </div>
-                For color images, equalization is performed in the luminance channel to avoid chromatic distortion.
+                Maximizes global dynamic contrast without user-specified heuristic parameters.
               </div>
 
               {eqResult && (
-                <div className="p-3 bg-charcoal-900 rounded-lg border border-slate-800 text-xs font-mono space-y-1">
-                  <div className="text-slate-400">Equalization Applied Successfully</div>
-                  <div className="text-cyan-400 text-[11px]">Dynamic Range: 0 → 255 Fully Utilized</div>
+                <div className="p-2.5 bg-obsidian-950 rounded border border-hairline text-[10px] font-mono space-y-1">
+                  <div className="text-emerald-400 font-semibold">✓ Equalization Complete</div>
+                  <div className="text-slate-400">Dynamic Range Span: [0..255] Fully Utilized</div>
                 </div>
               )}
             </div>
@@ -435,12 +431,12 @@ export const EnhancementLab: React.FC = () => {
 
         {/* Tab 4: Histogram Specification / Matching */}
         {activeTab === 'specification' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-              <span className="text-xs font-mono text-purple-400 font-semibold uppercase block">
-                Target Distribution Shape
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
+              <span className="text-[10px] font-mono text-purple-400 uppercase tracking-wider font-semibold block">
+                Target Prior Distribution
               </span>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                 {['gaussian', 'uniform'].map((type) => (
                   <button
                     key={type}
@@ -448,10 +444,10 @@ export const EnhancementLab: React.FC = () => {
                       setSpecTargetType(type);
                       handleSpecify();
                     }}
-                    className={`py-1.5 px-2 rounded capitalize font-medium ${
+                    className={`py-1.5 px-2 rounded capitalize text-[11px] ${
                       specTargetType === type
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                        : 'bg-charcoal-850 text-slate-400 border border-slate-800'
+                        ? 'bg-obsidian-950 text-purple-300 border border-purple-800/60 font-semibold shadow-inner'
+                        : 'bg-surface-raised text-slate-400 border border-hairline hover:text-slate-200'
                     }`}
                   >
                     {type}
@@ -460,9 +456,9 @@ export const EnhancementLab: React.FC = () => {
               </div>
 
               {specTargetType === 'gaussian' && (
-                <div className="space-y-2 pt-2">
+                <div className="space-y-2.5 pt-2 border-t border-hairline">
                   <ParameterSlider
-                    label="Gaussian Center Mean (μ)"
+                    label="Gaussian Mean (μ)"
                     value={gaussMean}
                     min={30}
                     max={225}
@@ -472,7 +468,7 @@ export const EnhancementLab: React.FC = () => {
                     }}
                   />
                   <ParameterSlider
-                    label="Gaussian Width (σ)"
+                    label="Standard Deviation (σ)"
                     value={gaussStd}
                     min={10}
                     max={80}

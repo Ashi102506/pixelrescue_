@@ -47,7 +47,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-charcoal-950 text-slate-100 overflow-hidden font-sans select-none">
+    <div className="flex h-screen w-screen bg-obsidian-950 text-slate-100 overflow-hidden font-sans select-none">
       {/* Left Sidebar */}
       <Sidebar />
 
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
         <TopNav />
 
         {/* Dynamic Laboratory Viewport */}
-        <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-charcoal-950 relative">
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-obsidian-950 relative">
           {renderModule()}
         </main>
       </div>

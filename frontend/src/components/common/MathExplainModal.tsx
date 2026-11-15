@@ -11,63 +11,58 @@ export const MathExplainModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          initial={{ opacity: 0, scale: 0.96, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.2 }}
-          className="relative w-full max-w-2xl bg-charcoal-900 border border-slate-700/80 rounded-xl shadow-2xl shadow-cyan-950/30 overflow-hidden flex flex-col max-h-[90vh]"
+          exit={{ opacity: 0, scale: 0.96, y: 10 }}
+          transition={{ duration: 0.15 }}
+          className="relative w-full max-w-2xl bg-surface-raised border border-hairline rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh] font-sans"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-charcoal-850">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400">
-                <BookOpen size={18} />
-              </div>
-              <div>
-                <span className="text-xs uppercase tracking-wider text-cyan-400 font-mono">
-                  {mathModalData.category || 'Mathematical Model'}
-                </span>
-                <h3 className="text-lg font-semibold text-white tracking-tight">{mathModalData.title}</h3>
-              </div>
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-hairline bg-obsidian-900">
+            <div className="flex items-center space-x-2.5">
+              <span className="text-[10px] font-mono text-cyan-400 font-semibold px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-800/40 uppercase tracking-wider">
+                {mathModalData.category || 'THEORETICAL FORMULATION'}
+              </span>
+              <h3 className="text-sm font-semibold text-slate-100 tracking-tight">{mathModalData.title}</h3>
             </div>
             <button
               onClick={closeMathModal}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1 rounded text-slate-400 hover:text-white hover:bg-surface-overlay transition-colors"
             >
-              <X size={20} />
+              <X size={16} />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6 overflow-y-auto">
+          <div className="p-5 space-y-4 overflow-y-auto">
             {/* Primary Formula Box */}
-            <div className="bg-charcoal-950 border border-violet-500/30 rounded-lg p-5 shadow-inner">
-              <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
-                <Activity size={14} className="text-cyan-400" />
+            <div className="bg-obsidian-950 border border-hairline rounded-lg p-4 shadow-inner">
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                <Activity size={12} className="text-cyan-400" />
                 <span>Governing Mathematical Formulation</span>
               </div>
-              <div className="py-2 flex justify-center text-lg">
+              <div className="py-2 flex justify-center text-base overflow-x-auto">
                 <MathFormula formula={mathModalData.formula} />
               </div>
             </div>
 
             {/* Variable Definitions */}
             {mathModalData.variables && mathModalData.variables.length > 0 && (
-              <div>
-                <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-                  <Variable size={14} className="text-violet-400" />
+              <div className="space-y-2">
+                <h4 className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+                  <Variable size={12} className="text-purple-400" />
                   <span>Variable Definitions & Parameters</span>
                 </h4>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1.5">
                   {mathModalData.variables.map((v, i) => (
                     <div
                       key={i}
-                      className="flex items-start space-x-3 bg-charcoal-850/60 border border-slate-800/80 px-3.5 py-2.5 rounded-lg"
+                      className="flex items-start space-x-3 bg-obsidian-950 border border-hairline px-3 py-2 rounded text-xs"
                     >
-                      <code className="text-sm font-mono text-cyan-400 font-semibold min-w-[50px]">{v.symbol}</code>
-                      <span className="text-sm text-slate-300">{v.meaning}</span>
+                      <code className="font-mono text-cyan-400 font-semibold min-w-[65px]">{v.symbol}</code>
+                      <span className="text-slate-300 leading-snug">{v.meaning}</span>
                     </div>
                   ))}
                 </div>
@@ -75,24 +70,24 @@ export const MathExplainModal: React.FC = () => {
             )}
 
             {/* Academic Explanation */}
-            <div>
-              <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Algorithm Theory</h4>
-              <p className="text-sm text-slate-300 leading-relaxed bg-charcoal-850/40 p-3.5 rounded-lg border border-slate-800">
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Algorithm Theory</h4>
+              <p className="text-xs text-slate-300 leading-relaxed bg-obsidian-950 p-3 rounded border border-hairline">
                 {mathModalData.explanation}
               </p>
             </div>
 
             {/* Complexity & Reference Footer */}
-            <div className="flex flex-wrap gap-4 pt-2 border-t border-slate-800 text-xs text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-hairline text-[11px] text-slate-400 font-mono">
               {mathModalData.complexity && (
-                <div className="flex items-center space-x-1.5 font-mono">
-                  <Clock size={14} className="text-amber-400" />
+                <div className="flex items-center space-x-1.5">
+                  <Clock size={12} className="text-amber-400" />
                   <span>Complexity: <strong className="text-slate-200">{mathModalData.complexity}</strong></span>
                 </div>
               )}
               {mathModalData.reference && (
                 <div className="flex items-center space-x-1.5 text-slate-400">
-                  <span className="text-cyan-400 font-mono">Ref:</span>
+                  <span className="text-cyan-400">Ref:</span>
                   <span>{mathModalData.reference}</span>
                 </div>
               )}

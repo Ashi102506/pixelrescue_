@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-  Layers,
-  Sliders,
   Grid,
+  Sliders,
+  Layers,
   Radio,
   Wand2,
   Palette,
@@ -10,83 +10,110 @@ import {
   GitFork,
   History,
   LayoutDashboard,
-  Cpu,
+  Aperture,
+  ExternalLink,
 } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
-import { ModuleId } from '../../types/dip';
+import type { ModuleId } from '../../types/dip';
 
 interface NavItem {
   id: ModuleId;
+  code: string;
   label: string;
-  sublabel: string;
+  chapter: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  badge?: string;
   flagship?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
+const NAV_GROUPS: Array<{
+  category: string;
+  items: NavItem[];
+}> = [
   {
-    id: 'dashboard',
-    label: 'Overview',
-    sublabel: 'System telemetry & quick tour',
-    icon: LayoutDashboard,
+    category: 'Console',
+    items: [
+      {
+        id: 'dashboard',
+        code: '00',
+        label: 'Workstation Overview',
+        chapter: 'System Telemetry',
+        icon: LayoutDashboard,
+      },
+    ],
   },
   {
-    id: 'fundamentals',
-    label: '1. Fundamentals',
-    sublabel: 'Pixels, sampling & quantization',
-    icon: Grid,
+    category: 'Digital Image Processing Laboratories',
+    items: [
+      {
+        id: 'fundamentals',
+        code: '01',
+        label: 'Image Fundamentals',
+        chapter: 'Sampling & Quantization',
+        icon: Grid,
+      },
+      {
+        id: 'enhancement',
+        code: '02',
+        label: 'Enhancement Studio',
+        chapter: 'Point Ops & Histograms',
+        icon: Sliders,
+      },
+      {
+        id: 'spatial',
+        code: '03',
+        label: 'Spatial Filtering',
+        chapter: '2D Convolution & Edges',
+        icon: Layers,
+      },
+      {
+        id: 'frequency',
+        code: '04',
+        label: 'SPECTRA FFT Lab',
+        chapter: 'Fourier Domain Analysis',
+        icon: Radio,
+        flagship: true,
+      },
+      {
+        id: 'restoration',
+        code: '05',
+        label: 'Image Restoration',
+        chapter: 'Degradation & Deconvolution',
+        icon: Wand2,
+      },
+      {
+        id: 'color',
+        code: '06',
+        label: 'Color Processing',
+        chapter: 'RGB · CMY · HSI Spaces',
+        icon: Palette,
+      },
+      {
+        id: 'quality',
+        code: '07',
+        label: 'Quality Assessment',
+        chapter: 'MSE · PSNR · SSIM Index',
+        icon: BarChart3,
+      },
+    ],
   },
   {
-    id: 'enhancement',
-    label: '2. Enhancement',
-    sublabel: 'Intensity transforms & histograms',
-    icon: Sliders,
-  },
-  {
-    id: 'spatial',
-    label: '3. Spatial Filtering',
-    sublabel: '2D Convolution & edge detection',
-    icon: Layers,
-  },
-  {
-    id: 'frequency',
-    label: '4. SPECTRA FFT',
-    sublabel: 'Fourier transform & frequency filters',
-    icon: Radio,
-    badge: 'FLAGSHIP',
-    flagship: true,
-  },
-  {
-    id: 'restoration',
-    label: '5. Restoration',
-    sublabel: 'Degradation models & Wiener filter',
-    icon: Wand2,
-  },
-  {
-    id: 'color',
-    label: '6. Color Lab',
-    sublabel: 'RGB, CMY, HSI & pseudocolor',
-    icon: Palette,
-  },
-  {
-    id: 'quality',
-    label: '7. Quality Analysis',
-    sublabel: 'MSE, PSNR, SSIM & reports',
-    icon: BarChart3,
-  },
-  {
-    id: 'pipeline',
-    label: 'Visual Pipeline',
-    sublabel: 'Node-based DAG workflow',
-    icon: GitFork,
-    badge: 'NODE',
-  },
-  {
-    id: 'history',
-    label: 'Experiments',
-    sublabel: 'Persistent trial comparison',
-    icon: History,
+    category: 'Analysis & Automation',
+    items: [
+      {
+        id: 'pipeline',
+        code: 'DAG',
+        label: 'Visual Node Pipeline',
+        chapter: 'Multi-stage Execution Graph',
+        icon: GitFork,
+      },
+      {
+        id: 'history',
+        code: 'LOG',
+        label: 'Experiment Archive',
+        chapter: 'Persistent Verification Data',
+        icon: History,
+      },
+    ],
   },
 ];
 
@@ -94,80 +121,102 @@ export const Sidebar: React.FC = () => {
   const { activeModule, setActiveModule } = useWorkspaceStore();
 
   return (
-    <aside className="w-64 bg-charcoal-900 border-r border-slate-800 flex flex-col h-full select-none z-20">
+    <aside className="w-64 bg-obsidian-900 border-r border-hairline flex flex-col h-full select-none z-20 shrink-0">
       {/* Brand Header */}
-      <div className="h-14 px-5 flex items-center space-x-3 border-b border-slate-800 bg-charcoal-950/40">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center text-charcoal-950 shadow-glow-cyan">
-          <Cpu size={18} strokeWidth={2.5} />
-        </div>
-        <div>
-          <div className="flex items-center space-x-1.5">
-            <span className="font-bold text-sm tracking-wider text-white">PIXELRESCUE</span>
-            <span className="text-[10px] font-mono px-1 py-0.2 bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 rounded">
-              v1.0
-            </span>
+      <div className="h-14 px-4 flex items-center justify-between border-b border-hairline bg-obsidian-950/70">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-7 h-7 rounded-md bg-obsidian-800 border border-slate-700/60 flex items-center justify-center text-laser-cyan">
+            <Aperture size={16} strokeWidth={2.2} />
           </div>
-          <p className="text-[10px] text-slate-400 font-mono tracking-tight">Scientific DIP Workstation</p>
+          <div>
+            <div className="flex items-center space-x-1.5">
+              <span className="font-mono text-xs font-bold tracking-wider text-slate-100 uppercase">
+                PIXELRESCUE
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-500 font-mono tracking-tight leading-none mt-0.5">
+              DIP Scientific Console
+            </p>
+          </div>
         </div>
+
+        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-obsidian-800 text-slate-400 border border-slate-700/50">
+          v1.0
+        </span>
       </div>
 
-      {/* Navigation List */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 px-3 mb-2 font-semibold">
-          Laboratories & Workspaces
-        </div>
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeModule === item.id;
+      {/* Navigation Groups */}
+      <nav className="flex-1 px-2.5 py-3 space-y-4 overflow-y-auto">
+        {NAV_GROUPS.map((group, gIdx) => (
+          <div key={gIdx} className="space-y-1">
+            <div className="px-2 pb-1 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-medium">
+              {group.category}
+            </div>
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveModule(item.id)}
-              className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all ${
-                isActive
-                  ? 'bg-gradient-to-r from-violet-600/20 to-cyan-500/10 border border-cyan-500/40 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
-              }`}
-            >
-              <div
-                className={`p-1.5 rounded-md ${
-                  isActive
-                    ? 'text-cyan-400 bg-cyan-500/10'
-                    : 'text-slate-400 group-hover:text-slate-300'
-                }`}
-              >
-                <Icon size={17} />
-              </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeModule === item.id;
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-semibold truncate ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                    {item.label}
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveModule(item.id)}
+                  className={`w-full flex items-center space-x-2.5 px-2.5 py-2 rounded-md text-left transition-all relative ${
+                    isActive
+                      ? 'bg-obsidian-800 text-white border-l-2 border-laser-cyan shadow-sm pl-2'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-850 border-l-2 border-transparent'
+                  }`}
+                >
+                  <span
+                    className={`font-mono text-[10px] w-5 shrink-0 ${
+                      isActive ? 'text-laser-cyan font-semibold' : 'text-slate-600'
+                    }`}
+                  >
+                    {item.code}
                   </span>
-                  {item.badge && (
-                    <span
-                      className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                        item.flagship
-                          ? 'bg-violet-950 text-violet-300 border border-violet-700/50'
-                          : 'bg-cyan-950 text-cyan-300 border border-cyan-700/50'
-                      }`}
-                    >
-                      {item.badge}
+
+                  <Icon
+                    size={15}
+                    className={`shrink-0 ${
+                      isActive ? 'text-laser-cyan' : 'text-slate-500 group-hover:text-slate-300'
+                    }`}
+                  />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium truncate leading-tight">
+                        {item.label}
+                      </span>
+                      {item.flagship && (
+                        <span className="text-[8px] font-mono uppercase px-1 py-0.2 rounded bg-laser-cyan/10 text-laser-cyan border border-laser-cyan/30">
+                          SPECTRA
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono truncate block leading-none mt-1">
+                      {item.chapter}
                     </span>
-                  )}
-                </div>
-                <p className="text-[10px] text-slate-400 truncate leading-tight mt-0.5">{item.sublabel}</p>
-              </div>
-            </button>
-          );
-        })}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      {/* Academic Textbook Credit Footer */}
-      <div className="p-3 border-t border-slate-800/80 bg-charcoal-950/60 text-[10px] text-slate-400 font-mono">
-        <p className="font-semibold text-slate-300 mb-0.5">Gonzalez & Woods DIP</p>
-        <p className="text-slate-400 leading-tight">Digital Image Processing 4th Ed. Formal Algorithm Engine</p>
+      {/* Footer Textbook Calibration Badge */}
+      <div className="p-3 border-t border-hairline bg-obsidian-950/80 text-[10px] font-mono text-slate-500 space-y-1">
+        <div className="flex justify-between items-center text-slate-400">
+          <span>Standard</span>
+          <span className="text-slate-300 font-medium">Gonzalez & Woods</span>
+        </div>
+        <div className="flex justify-between items-center text-[9px] text-slate-600">
+          <span>Engine Status</span>
+          <span className="text-laser-emerald font-semibold flex items-center space-x-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-laser-emerald inline-block" />
+            <span>Operational</span>
+          </span>
+        </div>
       </div>
     </aside>
   );

@@ -1,5 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, Columns, SplitSquareVertical, Eye, Crosshair, Sparkles } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Columns,
+  SplitSquareVertical,
+  Eye,
+  Crosshair,
+  Sparkles,
+} from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
 
 interface ImageViewerProps {
@@ -37,7 +46,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const activeSrc = processedImage || originalImage;
 
-  // Zoom handlers
   const handleZoomIn = () => setZoomLevel(Math.min(zoomLevel * 1.25, 8.0));
   const handleZoomOut = () => setZoomLevel(Math.max(zoomLevel / 1.25, 0.25));
   const handleResetView = () => {
@@ -45,7 +53,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
     setPanOffset({ x: 0, y: 0 });
   };
 
-  // Wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     if (e.deltaY < 0) {
@@ -55,10 +62,8 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
     }
   };
 
-  // Mouse pan handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1 || (e.button === 0 && e.altKey)) {
-      // Middle click or Alt+Click for panning
       setIsPanning(true);
       setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     }
@@ -79,7 +84,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
       setSplitPosition(Math.max(0, Math.min(100, pos)));
     }
 
-    // Pixel coordinate tracking
     if (imageRef.current && interactiveInspection) {
       const rect = imageRef.current.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
@@ -125,114 +129,112 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
   if (!activeSrc) {
     return (
-      <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-xl bg-charcoal-900/50 p-8 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 shadow-glow-cyan">
-          <Crosshair size={32} />
-        </div>
-        <h3 className="text-lg font-semibold text-white mb-1">No Image Loaded</h3>
-        <p className="text-sm text-slate-400 max-w-sm mb-4">
-          Select an academic sample image from the top bar or upload an image to begin mathematical processing.
+      <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center border border-dashed border-hairline rounded-lg bg-obsidian-900/40 p-8 text-center">
+        <Crosshair size={32} className="text-slate-600 mb-3" />
+        <h3 className="text-sm font-semibold text-slate-200 mb-1">Optical Frame Idle</h3>
+        <p className="text-xs text-slate-500 max-w-sm">
+          Select a test target from the dataset strip above or import an image.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-charcoal-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
-      {/* Top Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-charcoal-900/90 border-b border-slate-800 text-xs z-20">
-        {/* Comparison mode tabs */}
-        <div className="flex items-center space-x-1 bg-charcoal-950 p-1 rounded-lg border border-slate-800">
+    <div className="relative w-full h-full flex flex-col bg-obsidian-950 border border-hairline rounded-lg overflow-hidden select-none">
+      {/* Precision Frame Header */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-obsidian-900 border-b border-hairline text-xs font-mono z-20">
+        {/* Mode Tabs */}
+        <div className="flex items-center space-x-1 bg-obsidian-950 p-0.5 rounded border border-hairline">
           <button
             onClick={() => setComparisonMode('split')}
-            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
               comparisonMode === 'split'
-                ? 'bg-cyan-500/20 text-cyan-300 font-medium'
+                ? 'bg-obsidian-800 text-white font-medium shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            title="Split Slider"
           >
-            <SplitSquareVertical size={13} />
+            <SplitSquareVertical size={12} />
             <span>Split Slider</span>
           </button>
           <button
             onClick={() => setComparisonMode('side_by_side')}
-            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
               comparisonMode === 'side_by_side'
-                ? 'bg-cyan-500/20 text-cyan-300 font-medium'
+                ? 'bg-obsidian-800 text-white font-medium shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            title="Side by Side"
           >
-            <Columns size={13} />
-            <span>Side by Side</span>
+            <Columns size={12} />
+            <span>Dual Sync</span>
           </button>
           <button
             onClick={() => setComparisonMode('single')}
-            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
               comparisonMode === 'single'
-                ? 'bg-cyan-500/20 text-cyan-300 font-medium'
+                ? 'bg-obsidian-800 text-white font-medium shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            title="Single Output"
           >
-            <Eye size={13} />
-            <span>Processed</span>
+            <Eye size={12} />
+            <span>Output</span>
           </button>
           {differenceImage && (
             <button
               onClick={() => setComparisonMode('difference')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
                 comparisonMode === 'difference'
-                  ? 'bg-violet-500/20 text-violet-300 font-medium'
+                  ? 'bg-laser-amber/20 text-laser-amber font-medium shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
-              title="Difference Heatmap"
             >
-              <Sparkles size={13} />
+              <Sparkles size={12} />
               <span>Diff Map</span>
             </button>
           )}
         </div>
 
-        {/* Center: Cursor tracker info */}
+        {/* Live Cursor Coordinate HUD */}
         {cursorPos && (
-          <div className="hidden sm:flex items-center space-x-2 font-mono text-xs text-slate-300 bg-charcoal-950 px-2.5 py-1 rounded border border-slate-800">
-            <span className="text-cyan-400">X: {cursorPos.x}</span>
-            <span className="text-violet-400">Y: {cursorPos.y}</span>
+          <div className="flex items-center space-x-3 text-[11px] text-slate-300 bg-obsidian-950 px-2.5 py-1 rounded border border-hairline">
+            <span>
+              X: <strong className="text-laser-cyan">{cursorPos.x}</strong>
+            </span>
+            <span>
+              Y: <strong className="text-laser-cyan">{cursorPos.y}</strong>
+            </span>
           </div>
         )}
 
-        {/* Right: Zoom Controls */}
+        {/* Zoom Stepper */}
         <div className="flex items-center space-x-1">
           <button
             onClick={handleZoomOut}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-obsidian-850"
             title="Zoom Out"
           >
-            <ZoomOut size={15} />
+            <ZoomOut size={13} />
           </button>
-          <span className="font-mono text-slate-300 w-12 text-center text-[11px]">
+          <span className="w-12 text-center text-[10px] text-slate-400">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button
             onClick={handleZoomIn}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-obsidian-850"
             title="Zoom In"
           >
-            <ZoomIn size={15} />
+            <ZoomIn size={13} />
           </button>
           <button
             onClick={handleResetView}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1"
-            title="Reset View"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-obsidian-850 ml-0.5"
+            title="Reset Frame"
           >
-            <RotateCcw size={14} />
+            <RotateCcw size={12} />
           </button>
         </div>
       </div>
 
-      {/* Main Canvas Viewport */}
+      {/* Main Optical Canvas */}
       <div
         ref={containerRef}
         onWheel={handleWheel}
@@ -240,25 +242,31 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onClick={handleClick}
-        className="relative flex-1 w-full h-full min-h-[460px] overflow-hidden flex items-center justify-center bg-[radial-gradient(#1e2942_1px,transparent_1px)] [background-size:16px_16px] cursor-crosshair select-none"
+        className="relative flex-1 w-full h-full min-h-[460px] overflow-hidden flex items-center justify-center optical-grid cursor-crosshair select-none bg-obsidian-950"
       >
+        {/* Frame corner registration marks */}
+        <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-slate-700 pointer-events-none opacity-40" />
+        <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-slate-700 pointer-events-none opacity-40" />
+        <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-slate-700 pointer-events-none opacity-40" />
+        <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-slate-700 pointer-events-none opacity-40" />
+
         <div
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center center',
             transition: isPanning ? 'none' : 'transform 0.05s ease-out',
           }}
-          className="relative max-w-full max-h-full flex items-center justify-center shadow-2xl"
+          className="relative max-w-full max-h-full flex items-center justify-center"
         >
           {comparisonMode === 'split' && originalImage && processedImage ? (
-            <div className="relative overflow-hidden rounded shadow-2xl border border-slate-700/60 select-none">
-              {/* Original (Base Layer) */}
+            <div className="relative overflow-hidden rounded border border-hairline shadow-2xl select-none">
+              {/* Original Layer */}
               <img
                 src={originalImage}
                 alt="Original"
-                className="block max-h-[560px] object-contain pointer-events-none"
+                className="block max-h-[540px] object-contain pointer-events-none"
               />
-              {/* Processed (Clipped Top Layer) */}
+              {/* Processed Layer (Clipped) */}
               <div
                 style={{ clipPath: `inset(0 0 0 ${splitPosition}%)` }}
                 className="absolute inset-0 select-none"
@@ -271,57 +279,57 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
                 />
               </div>
 
-              {/* Split Drag Bar */}
+              {/* Minimal 1px Split Hairline */}
               <div
                 style={{ left: `${splitPosition}%` }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   setIsDraggingSplit(true);
                 }}
-                className="absolute top-0 bottom-0 w-1 bg-cyan-400 cursor-ew-resize z-10 flex items-center justify-center hover:bg-cyan-300 shadow-[0_0_10px_rgba(0,242,254,0.8)]"
+                className="absolute top-0 bottom-0 w-[1px] bg-slate-200 cursor-ew-resize z-10 flex items-center justify-center hover:bg-laser-cyan"
               >
-                <div className="w-5 h-8 bg-charcoal-900 border border-cyan-400 rounded-md flex items-center justify-center text-[10px] text-cyan-300 shadow-md">
+                <div className="w-3.5 h-6 bg-obsidian-900 border border-slate-400 rounded-sm flex items-center justify-center text-[8px] font-mono text-slate-300 shadow">
                   ⟷
                 </div>
               </div>
 
-              {/* Labels */}
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur text-[10px] font-mono text-slate-300 pointer-events-none border border-slate-800">
-                ORIGINAL
+              {/* Quiet labels */}
+              <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-obsidian-950/90 text-[9px] font-mono text-slate-400 pointer-events-none border border-hairline">
+                RAW INPUT
               </div>
-              <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur text-[10px] font-mono text-cyan-400 pointer-events-none border border-cyan-900/50">
+              <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-obsidian-950/90 text-[9px] font-mono text-slate-200 pointer-events-none border border-hairline">
                 PROCESSED
               </div>
             </div>
           ) : comparisonMode === 'side_by_side' && originalImage && processedImage ? (
-            <div className="flex items-center space-x-4 p-4">
-              <div className="relative border border-slate-800 rounded overflow-hidden">
-                <img src={originalImage} alt="Original" className="max-h-[500px] object-contain" />
-                <span className="absolute top-2 left-2 bg-black/70 text-slate-300 text-[10px] font-mono px-2 py-0.5 rounded">
-                  ORIGINAL
+            <div className="flex items-center space-x-3 p-3">
+              <div className="relative border border-hairline rounded overflow-hidden bg-black/40">
+                <img src={originalImage} alt="Raw" className="max-h-[500px] object-contain" />
+                <span className="absolute top-1.5 left-1.5 bg-obsidian-950/90 text-slate-400 text-[9px] font-mono px-1.5 py-0.2 rounded border border-hairline">
+                  RAW INPUT
                 </span>
               </div>
-              <div className="relative border border-cyan-500/40 rounded overflow-hidden shadow-glow-cyan">
+              <div className="relative border border-slate-600 rounded overflow-hidden bg-black/40 shadow-xl">
                 <img ref={imageRef} src={processedImage} alt="Processed" className="max-h-[500px] object-contain" />
-                <span className="absolute top-2 left-2 bg-black/70 text-cyan-400 text-[10px] font-mono px-2 py-0.5 rounded border border-cyan-500/30">
+                <span className="absolute top-1.5 left-1.5 bg-obsidian-950/90 text-slate-200 text-[9px] font-mono px-1.5 py-0.2 rounded border border-hairline font-semibold">
                   PROCESSED
                 </span>
               </div>
             </div>
           ) : comparisonMode === 'difference' && differenceImage ? (
-            <div className="relative border border-violet-500/40 rounded overflow-hidden shadow-glow-violet">
-              <img ref={imageRef} src={differenceImage} alt="Difference Heatmap" className="max-h-[560px] object-contain" />
-              <span className="absolute top-2 left-2 bg-black/70 text-violet-300 text-[10px] font-mono px-2 py-0.5 rounded border border-violet-500/30">
-                DIFFERENCE HEATMAP
+            <div className="relative border border-hairline rounded overflow-hidden bg-black/40 shadow-2xl">
+              <img ref={imageRef} src={differenceImage} alt="Difference Heatmap" className="max-h-[540px] object-contain" />
+              <span className="absolute top-2 left-2 bg-obsidian-950/90 text-laser-amber text-[9px] font-mono px-2 py-0.5 rounded border border-hairline">
+                ABSOLUTE DIFFERENCE MAP
               </span>
             </div>
           ) : (
-            <div className="relative border border-slate-800 rounded overflow-hidden">
+            <div className="relative border border-hairline rounded overflow-hidden bg-black/40">
               <img
                 ref={imageRef}
                 src={processedImage || originalImage || ''}
-                alt="Active View"
-                className="max-h-[560px] object-contain"
+                alt="Active Frame"
+                className="max-h-[540px] object-contain"
               />
             </div>
           )}

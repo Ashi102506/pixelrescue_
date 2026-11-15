@@ -5,16 +5,15 @@ import {
   RotateCcw,
   Undo2,
   Redo2,
-  Layers,
-  Sparkles,
-  Info,
-  CheckCircle2,
   Loader2,
-  Image as ImageIcon,
+  SlidersHorizontal,
+  ChevronDown,
+  Activity,
+  HardDrive,
 } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
 import { api } from '../../services/api';
-import { SampleImage } from '../../types/dip';
+import type { SampleImage } from '../../types/dip';
 
 export const TopNav: React.FC = () => {
   const {
@@ -34,13 +33,15 @@ export const TopNav: React.FC = () => {
 
   const [samples, setSamples] = useState<SampleImage[]>([]);
   const [selectedSample, setSelectedSample] = useState<string>('cameraman');
+  const [showConfig, setShowConfig] = useState<boolean>(false);
+  const [customApiUrl, setCustomApiUrl] = useState<string>(
+    localStorage.getItem('pixelrescue_api_url') || ''
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load samples on mount
   useEffect(() => {
     api.getSamples().then((data) => {
       setSamples(data);
-      // Auto-load cameraman if workspace has no image
       if (!originalImage && data.length > 0) {
         const cam = data.find((s) => s.id === 'cameraman') || data[0];
         setImage(cam.thumbnail, cam.metadata);
@@ -82,31 +83,42 @@ export const TopNav: React.FC = () => {
     if (!target) return;
     const a = document.createElement('a');
     a.href = target;
-    a.download = `pixelrescue_${metadata?.filename || 'processed'}.png`;
+    a.download = `pixelrescue_${metadata?.filename || 'output'}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
+  const handleSaveApiUrl = () => {
+    if (customApiUrl.trim()) {
+      localStorage.setItem('pixelrescue_api_url', customApiUrl.trim());
+    } else {
+      localStorage.removeItem('pixelrescue_api_url');
+    }
+    setShowConfig(false);
+    window.location.reload();
+  };
+
   return (
-    <header className="h-14 bg-charcoal-900 border-b border-slate-800 px-5 flex items-center justify-between z-30 select-none">
-      {/* Left: Academic Presets & Upload */}
-      <div className="flex items-center space-x-3">
-        <div className="flex items-center space-x-2 bg-charcoal-950 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
-          <ImageIcon size={14} className="text-cyan-400" />
-          <span className="text-slate-400 font-medium">Dataset:</span>
+    <header className="h-14 bg-obsidian-900 border-b border-hairline px-4 flex items-center justify-between z-30 select-none shrink-0">
+      {/* Left: Dataset Selector & Upload */}
+      <div className="flex items-center space-x-2">
+        <div className="flex items-center bg-obsidian-950 border border-slate-700/60 rounded px-2.5 py-1 text-xs">
+          <span className="text-slate-500 font-mono text-[10px] uppercase mr-2 tracking-wider">
+            Target:
+          </span>
           <select
             value={selectedSample}
             onChange={(e) => handleSelectSample(e.target.value)}
-            className="bg-transparent text-slate-200 font-medium focus:outline-none cursor-pointer"
+            className="bg-transparent text-slate-200 font-mono font-medium text-xs focus:outline-none cursor-pointer pr-1"
           >
             {samples.map((s) => (
-              <option key={s.id} value={s.id} className="bg-charcoal-900 text-slate-200">
+              <option key={s.id} value={s.id} className="bg-obsidian-900 text-slate-200 font-mono">
                 {s.name}
               </option>
             ))}
             {selectedSample === 'custom' && (
-              <option value="custom" className="bg-charcoal-900 text-slate-200">
+              <option value="custom" className="bg-obsidian-900 text-slate-200 font-mono">
                 Custom Upload
               </option>
             )}
@@ -123,72 +135,109 @@ export const TopNav: React.FC = () => {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-charcoal-850 hover:bg-slate-800 border border-slate-700/80 rounded-lg text-xs font-medium text-slate-300 transition-colors"
-          title="Upload PNG, JPG, BMP, TIFF"
+          className="flex items-center space-x-1.5 px-2.5 py-1 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-xs font-mono text-slate-300 transition-colors"
+          title="Upload Local Image (PNG, JPG, BMP, TIFF)"
         >
-          <Upload size={13} className="text-cyan-400" />
-          <span>Upload Image</span>
+          <Upload size={12} className="text-slate-400" />
+          <span>Import</span>
         </button>
 
-        {/* Metadata Badge */}
+        {/* Telemetry Strip */}
         {metadata && (
-          <div className="hidden lg:flex items-center space-x-2 text-[11px] font-mono text-slate-400 bg-charcoal-950/70 border border-slate-800/80 px-2.5 py-1 rounded">
-            <span>{metadata.width}×{metadata.height}px</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-cyan-400">{metadata.color_mode}</span>
-            <span className="text-slate-600">•</span>
-            <span>{metadata.file_size_formatted}</span>
+          <div className="hidden xl:flex items-center space-x-3 text-[11px] font-mono text-slate-400 pl-3 border-l border-hairline">
+            <span className="text-slate-300">{metadata.width}×{metadata.height}</span>
+            <span className="text-slate-600">/</span>
+            <span className="text-slate-300">{metadata.color_mode}</span>
+            <span className="text-slate-600">/</span>
+            <span className="text-slate-400">{metadata.file_size_formatted}</span>
           </div>
         )}
       </div>
 
-      {/* Center: Live Status Indicator */}
-      <div className="flex items-center space-x-2 text-xs">
+      {/* Center: System Status */}
+      <div className="flex items-center space-x-2">
         {isProcessing ? (
-          <div className="flex items-center space-x-1.5 text-cyan-400 bg-cyan-950/30 border border-cyan-800/50 px-3 py-1 rounded-full animate-pulse">
-            <Loader2 size={13} className="animate-spin" />
-            <span className="font-mono text-[11px]">{statusMessage}</span>
+          <div className="flex items-center space-x-2 text-laser-cyan bg-obsidian-950 px-3 py-1 rounded border border-laser-cyan/30 text-xs font-mono">
+            <Loader2 size={12} className="animate-spin" />
+            <span>{statusMessage}</span>
           </div>
         ) : (
-          <div className="flex items-center space-x-1.5 text-slate-400 bg-charcoal-950 px-2.5 py-1 rounded-full border border-slate-800">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="font-mono text-[11px] text-slate-300">{statusMessage}</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400 bg-obsidian-950 px-3 py-1 rounded border border-hairline">
+            <span className="w-1.5 h-1.5 rounded-full bg-laser-emerald" />
+            <span className="text-slate-300">{statusMessage}</span>
           </div>
         )}
       </div>
 
-      {/* Right: History, Reset & Export */}
-      <div className="flex items-center space-x-2">
+      {/* Right Controls */}
+      <div className="flex items-center space-x-1.5">
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
-          className="p-1.5 bg-charcoal-850 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-700/80 rounded-lg text-slate-300 transition-colors"
-          title="Undo Step"
+          className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/60 rounded text-slate-300 transition-colors"
+          title="Undo Step (Ctrl+Z)"
         >
-          <Undo2 size={15} />
+          <Undo2 size={13} />
         </button>
         <button
           onClick={redo}
           disabled={historyIndex >= historyStack.length - 1}
-          className="p-1.5 bg-charcoal-850 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-700/80 rounded-lg text-slate-300 transition-colors"
-          title="Redo Step"
+          className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/60 rounded text-slate-300 transition-colors"
+          title="Redo Step (Ctrl+Y)"
         >
-          <Redo2 size={15} />
+          <Redo2 size={13} />
         </button>
         <button
           onClick={resetProcessed}
-          className="flex items-center space-x-1 px-2.5 py-1.5 bg-charcoal-850 hover:bg-slate-800 border border-slate-700/80 rounded-lg text-xs text-slate-300 transition-colors"
-          title="Reset to Original"
+          className="flex items-center space-x-1 px-2.5 py-1 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-xs font-mono text-slate-300 transition-colors"
+          title="Reset Image to Raw Input"
         >
-          <RotateCcw size={13} className="text-amber-400" />
+          <RotateCcw size={12} className="text-slate-400" />
           <span className="hidden sm:inline">Reset</span>
         </button>
+
+        {/* API Host Switcher */}
+        <div className="relative">
+          <button
+            onClick={() => setShowConfig(!showConfig)}
+            className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-slate-400 hover:text-slate-200 transition-colors"
+            title="Configure Backend Connection"
+          >
+            <SlidersHorizontal size={13} />
+          </button>
+
+          {showConfig && (
+            <div className="absolute right-0 top-10 w-72 bg-obsidian-900 border border-slate-700 rounded-lg p-3 shadow-2xl z-50 text-xs font-mono space-y-2">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                Backend API Gateway
+              </span>
+              <input
+                type="text"
+                placeholder="http://localhost:8000/api"
+                value={customApiUrl}
+                onChange={(e) => setCustomApiUrl(e.target.value)}
+                className="w-full bg-obsidian-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-laser-cyan"
+              />
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-[10px] text-slate-500">Leave blank for auto</span>
+                <button
+                  onClick={handleSaveApiUrl}
+                  className="px-2.5 py-1 bg-slate-200 hover:bg-white text-obsidian-950 font-bold rounded text-[11px]"
+                >
+                  Save & Apply
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Primary Action Button: Deliberate Off-White */}
         <button
           onClick={handleExport}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-charcoal-950 font-semibold rounded-lg text-xs shadow-glow-cyan transition-all"
+          className="flex items-center space-x-1.5 px-3 py-1 bg-slate-200 hover:bg-white text-obsidian-950 font-semibold rounded text-xs transition-colors shadow-sm"
         >
-          <Download size={14} />
-          <span>Export</span>
+          <Download size={13} />
+          <span>Export PNG</span>
         </button>
       </div>
     </header>

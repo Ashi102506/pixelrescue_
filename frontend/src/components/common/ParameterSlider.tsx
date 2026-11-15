@@ -26,7 +26,7 @@ export const ParameterSlider: React.FC<ParameterSliderProps> = ({
   return (
     <div className="space-y-1.5 py-1">
       <div className="flex justify-between items-center text-xs">
-        <span className="font-medium text-slate-300">{label}</span>
+        <span className="font-medium text-slate-300 tracking-tight">{label}</span>
         <div className="flex items-center space-x-1">
           <input
             type="number"
@@ -36,9 +36,9 @@ export const ParameterSlider: React.FC<ParameterSliderProps> = ({
             value={value}
             disabled={disabled}
             onChange={(e) => onChange(parseFloat(e.target.value) || min)}
-            className="w-16 bg-charcoal-950 border border-slate-700/80 rounded px-1.5 py-0.5 text-right font-mono text-cyan-400 text-xs focus:outline-none focus:border-cyan-500"
+            className="w-14 bg-obsidian-950 border border-slate-700/60 rounded px-1.5 py-0.5 text-right font-mono text-slate-100 text-xs focus:outline-none focus:border-laser-cyan"
           />
-          {unit && <span className="text-slate-400 font-mono text-[11px]">{unit}</span>}
+          {unit && <span className="text-slate-500 font-mono text-[10px]">{unit}</span>}
         </div>
       </div>
 
@@ -50,10 +50,12 @@ export const ParameterSlider: React.FC<ParameterSliderProps> = ({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 disabled:opacity-50"
+        className="w-full h-1 bg-obsidian-800 rounded appearance-none cursor-pointer accent-slate-300 disabled:opacity-30"
       />
 
-      {description && <p className="text-[11px] text-slate-400 leading-tight">{description}</p>}
+      {description && (
+        <p className="text-[10px] text-slate-500 leading-tight font-mono">{description}</p>
+      )}
     </div>
   );
 };

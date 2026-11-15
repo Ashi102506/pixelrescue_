@@ -29,37 +29,37 @@ import { api } from '../../services/api';
 // Custom Node Component for Image Processing Stages
 const DIPProcessingNode: React.FC<{ data: any; id: string }> = ({ data, id }) => {
   return (
-    <div className="bg-charcoal-900 border-2 border-slate-700/80 rounded-xl p-3 min-w-[190px] shadow-2xl text-xs font-mono text-slate-200">
-      <Handle type="target" position={Position.Left} className="!bg-cyan-400 !w-2.5 !h-2.5" />
+    <div className="bg-surface-raised border border-hairline rounded-lg p-3 min-w-[190px] shadow-lg text-xs font-mono text-slate-200">
+      <Handle type="target" position={Position.Left} className="!bg-cyan-400 !w-2 !h-2 !border-none" />
 
       {/* Header */}
-      <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-800">
-        <span className="font-bold text-cyan-300 truncate">{data.label}</span>
-        <span className="text-[9px] uppercase px-1 rounded bg-slate-800 text-slate-400">
+      <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-hairline">
+        <span className="font-semibold text-slate-100 truncate text-[11px]">{data.label}</span>
+        <span className="text-[9px] uppercase px-1 rounded bg-obsidian-950 text-slate-400 border border-hairline">
           {data.type}
         </span>
       </div>
 
       {/* Intermediate Thumbnail Preview */}
       {data.preview ? (
-        <div className="my-1.5 rounded overflow-hidden border border-slate-800 bg-black/60 flex items-center justify-center">
-          <img src={data.preview} alt="Step Preview" className="h-20 w-full object-cover" />
+        <div className="my-1.5 rounded overflow-hidden border border-hairline bg-obsidian-950 flex items-center justify-center p-0.5">
+          <img src={data.preview} alt="Step Preview" className="h-20 w-full object-cover rounded" />
         </div>
       ) : (
-        <div className="my-1.5 h-14 rounded border border-dashed border-slate-800 flex items-center justify-center text-[10px] text-slate-500">
-          Awaiting Run
+        <div className="my-1.5 h-14 rounded border border-dashed border-hairline flex items-center justify-center text-[10px] text-slate-500 font-mono">
+          Pending Execution
         </div>
       )}
 
-      {/* Execution status */}
+      {/* Execution latency */}
       {data.time_ms !== undefined && (
-        <div className="flex justify-between text-[10px] text-slate-400 pt-1">
+        <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-hairline">
           <span>Latency:</span>
-          <span className="text-emerald-400 font-semibold">{data.time_ms} ms</span>
+          <span className="text-emerald-400 font-semibold tabular-nums">{data.time_ms} ms</span>
         </div>
       )}
 
-      <Handle type="source" position={Position.Right} className="!bg-violet-400 !w-2.5 !h-2.5" />
+      <Handle type="source" position={Position.Right} className="!bg-cyan-400 !w-2 !h-2 !border-none" />
     </div>
   );
 };
@@ -109,10 +109,10 @@ export const VisualPipelineLab: React.FC = () => {
   ];
 
   const initialEdges: Edge[] = [
-    { id: 'e1-2', source: 'node-1', target: 'node-2', animated: true },
-    { id: 'e2-3', source: 'node-2', target: 'node-3', animated: true },
-    { id: 'e3-4', source: 'node-3', target: 'node-4', animated: true },
-    { id: 'e4-5', source: 'node-4', target: 'node-5', animated: true },
+    { id: 'e1-2', source: 'node-1', target: 'node-2', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+    { id: 'e2-3', source: 'node-2', target: 'node-3', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+    { id: 'e3-4', source: 'node-3', target: 'node-4', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+    { id: 'e4-5', source: 'node-4', target: 'node-5', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
   ];
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
@@ -129,7 +129,7 @@ export const VisualPipelineLab: React.FC = () => {
     []
   );
   const onConnect = useCallback(
-    (connection: any) => setEdges((eds) => addEdge({ ...connection, animated: true }, eds)),
+    (connection: any) => setEdges((eds) => addEdge({ ...connection, animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } }, eds)),
     []
   );
 
@@ -211,10 +211,10 @@ export const VisualPipelineLab: React.FC = () => {
         },
       ]);
       setEdges([
-        { id: 'e1', source: 'n1', target: 'n2', animated: true },
-        { id: 'e2', source: 'n2', target: 'n3', animated: true },
-        { id: 'e3', source: 'n3', target: 'n4', animated: true },
-        { id: 'e4', source: 'n4', target: 'n5', animated: true },
+        { id: 'e1', source: 'n1', target: 'n2', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e2', source: 'n2', target: 'n3', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e3', source: 'n3', target: 'n4', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e4', source: 'n4', target: 'n5', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
       ]);
     } else if (presetName === 'denoise_contrast') {
       setNodes([
@@ -250,27 +250,27 @@ export const VisualPipelineLab: React.FC = () => {
         },
       ]);
       setEdges([
-        { id: 'e1', source: 'n1', target: 'n2', animated: true },
-        { id: 'e2', source: 'n2', target: 'n3', animated: true },
-        { id: 'e3', source: 'n3', target: 'n4', animated: true },
-        { id: 'e4', source: 'n4', target: 'n5', animated: true },
+        { id: 'e1', source: 'n1', target: 'n2', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e2', source: 'n2', target: 'n3', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e3', source: 'n3', target: 'n4', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
+        { id: 'e4', source: 'n4', target: 'n5', animated: true, style: { stroke: '#38bdf8', strokeWidth: 1.5 } },
       ]);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-obsidian-950 font-sans">
       {/* Top Action Bar */}
-      <div className="h-12 bg-charcoal-900 border-b border-slate-800 px-5 flex items-center justify-between z-10 text-xs">
+      <div className="h-11 bg-obsidian-900 border-b border-hairline px-4 flex items-center justify-between z-10 text-xs font-mono">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 font-mono text-cyan-400 font-bold uppercase">
-            <GitFork size={15} />
-            <span>Node DAG Workflow</span>
+          <div className="flex items-center space-x-1.5 text-cyan-400 font-semibold uppercase text-[11px]">
+            <GitFork size={13} />
+            <span>DAG Pipeline Canvas</span>
           </div>
 
           {/* Add node dropdown */}
-          <div className="flex items-center space-x-1 bg-charcoal-950 px-2.5 py-1 rounded border border-slate-800">
-            <span className="text-slate-400">Add Node:</span>
+          <div className="flex items-center space-x-1 bg-surface-raised px-2 py-1 rounded border border-hairline text-[11px]">
+            <span className="text-slate-400">Add Stage:</span>
             <select
               onChange={(e) => {
                 const val = e.target.value;
@@ -283,30 +283,30 @@ export const VisualPipelineLab: React.FC = () => {
                 else if (val === 'pseudocolor') handleAddNode('pseudocolor', 'Pseudo-color (Jet)', { colormap: 'jet' });
                 e.target.value = '';
               }}
-              className="bg-transparent text-slate-200 font-medium focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer"
             >
-              <option value="">-- Select Algorithm --</option>
-              <option value="spatial_gauss" className="bg-charcoal-900 text-slate-200">Gaussian Smoothing</option>
-              <option value="spatial_sobel" className="bg-charcoal-900 text-slate-200">Sobel Gradient Edge</option>
-              <option value="gamma" className="bg-charcoal-900 text-slate-200">Gamma Power-Law</option>
-              <option value="hist_eq" className="bg-charcoal-900 text-slate-200">Histogram Equalization</option>
-              <option value="freq_butter" className="bg-charcoal-900 text-slate-200">2D FFT Butterworth LPF</option>
-              <option value="pseudocolor" className="bg-charcoal-900 text-slate-200">Pseudo-Color (Jet)</option>
+              <option value="">-- Choose Operator --</option>
+              <option value="spatial_gauss" className="bg-obsidian-950 text-slate-200">Gaussian Smoothing</option>
+              <option value="spatial_sobel" className="bg-obsidian-950 text-slate-200">Sobel Gradient Edge</option>
+              <option value="gamma" className="bg-obsidian-950 text-slate-200">Gamma Power-Law</option>
+              <option value="hist_eq" className="bg-obsidian-950 text-slate-200">Histogram Equalization</option>
+              <option value="freq_butter" className="bg-obsidian-950 text-slate-200">2D FFT Butterworth LPF</option>
+              <option value="pseudocolor" className="bg-obsidian-950 text-slate-200">Pseudo-Color (Jet)</option>
             </select>
           </div>
 
           {/* Preset Pipelines */}
-          <div className="hidden sm:flex items-center space-x-1 text-slate-400">
-            <span>Presets:</span>
+          <div className="hidden sm:flex items-center space-x-1 text-slate-400 text-[11px]">
+            <span className="text-slate-500">Presets:</span>
             <button
               onClick={() => loadPreset('edge_boost')}
-              className="px-2 py-0.5 rounded bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-[11px] text-slate-300"
+              className="px-2 py-0.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-300"
             >
               Edge Detector
             </button>
             <button
               onClick={() => loadPreset('denoise_contrast')}
-              className="px-2 py-0.5 rounded bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-[11px] text-slate-300"
+              className="px-2 py-0.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-300"
             >
               Denoise & Boost
             </button>
@@ -317,16 +317,16 @@ export const VisualPipelineLab: React.FC = () => {
         <div className="flex items-center space-x-2">
           <button
             onClick={handleExecutePipeline}
-            className="flex items-center space-x-1.5 px-4 py-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-charcoal-950 font-bold rounded-lg text-xs shadow-glow-cyan transition-all"
+            className="flex items-center space-x-1.5 px-3 py-1 bg-slate-100 hover:bg-white text-obsidian-950 font-semibold rounded text-xs border border-white/20 transition-all shadow-sm active:scale-[0.99]"
           >
-            <Play size={13} fill="currentColor" />
-            <span>Execute Pipeline</span>
+            <Play size={11} fill="currentColor" />
+            <span>Execute Topological DAG</span>
           </button>
         </div>
       </div>
 
       {/* Main Canvas + Bottom Telemetry Drawer */}
-      <div className="flex-1 relative w-full h-full">
+      <div className="flex-1 relative w-full h-full bg-obsidian-950">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -336,30 +336,30 @@ export const VisualPipelineLab: React.FC = () => {
           nodeTypes={nodeTypes}
           fitView
         >
-          <Background color="#1e2942" gap={20} size={1.5} />
-          <Controls className="!bg-charcoal-900 !border !border-slate-800 !text-slate-200" />
+          <Background color="#191e28" gap={20} size={1} />
+          <Controls className="!bg-surface-raised !border !border-hairline !text-slate-300 !rounded-md" />
         </ReactFlow>
 
         {/* Execution Log Overlay */}
         {execLogs.length > 0 && (
-          <div className="absolute bottom-4 left-4 z-10 bg-charcoal-950/90 backdrop-blur border border-slate-800 rounded-xl p-3 max-w-md shadow-2xl text-xs font-mono">
-            <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-800">
-              <span className="text-cyan-400 font-bold flex items-center space-x-1">
-                <CheckCircle size={13} className="text-emerald-400" />
-                <span>Execution Complete</span>
+          <div className="absolute bottom-4 left-4 z-10 bg-surface-raised/95 backdrop-blur-md border border-hairline rounded-lg p-3 max-w-md shadow-xl text-xs font-mono">
+            <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-hairline">
+              <span className="text-emerald-400 font-semibold flex items-center space-x-1 text-[11px]">
+                <CheckCircle size={12} className="text-emerald-400" />
+                <span>DAG Completed Successfully</span>
               </span>
               {pipelineMetrics && (
-                <span className="text-[11px] text-slate-400">
-                  PSNR: <strong className="text-white">{pipelineMetrics.psnr_db} dB</strong>
+                <span className="text-[10px] text-slate-400">
+                  PSNR: <strong className="text-white tabular-nums">{pipelineMetrics.psnr_db} dB</strong>
                 </span>
               )}
             </div>
 
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {execLogs.map((log, i) => (
-                <div key={i} className="flex justify-between text-[11px] text-slate-300">
-                  <span className="truncate max-w-[240px]">• {log.label}: {log.description}</span>
-                  <span className="text-emerald-400 font-semibold">{log.time_ms} ms</span>
+                <div key={i} className="flex justify-between text-[10px] text-slate-400">
+                  <span className="truncate max-w-[240px] text-slate-300">• {log.label}: {log.description}</span>
+                  <span className="text-emerald-400 font-semibold tabular-nums">{log.time_ms} ms</span>
                 </div>
               ))}
             </div>

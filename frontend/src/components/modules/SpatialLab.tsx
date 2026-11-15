@@ -70,10 +70,17 @@ export const SpatialLab: React.FC = () => {
     }
   };
 
+  const categories = [
+    { id: 'smoothing', label: 'Smoothing' },
+    { id: 'sharpening', label: 'Sharpen' },
+    { id: 'edges', label: 'Gradients' },
+    { id: 'step_math', label: 'Step Math' },
+  ] as const;
+
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-obsidian-950">
       {/* Center Image Workspace */}
-      <div className="flex-1 p-4 flex flex-col min-w-0">
+      <div className="flex-1 p-3 flex flex-col min-w-0">
         <ImageViewer
           onPixelClick={(x, y) => {
             if (activeCategory === 'step_math') {
@@ -83,15 +90,20 @@ export const SpatialLab: React.FC = () => {
         />
       </div>
 
-      {/* Right Inspector & Controls */}
-      <div className="w-full lg:w-96 bg-charcoal-900 border-l border-slate-800 p-5 overflow-y-auto space-y-6 select-none shrink-0">
+      {/* Right Precision Telemetry & Controls */}
+      <div className="w-full lg:w-96 bg-obsidian-900 border-l border-hairline p-4 overflow-y-auto space-y-4 select-none shrink-0 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <span className="text-[10px] font-mono text-emerald-400 font-semibold tracking-wider uppercase">
-              Module 3
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-mono text-emerald-400 font-semibold px-1.5 py-0.5 rounded bg-emerald-950/50 border border-emerald-800/40">
+              03
             </span>
-            <h2 className="text-lg font-bold text-white tracking-tight">Spatial Filtering Lab</h2>
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Spatial Filtering Lab
+              </h2>
+              <p className="text-[10px] font-mono text-slate-500">2D Discrete Convolution & Kernels</p>
+            </div>
           </div>
           <button
             onClick={() =>
@@ -111,70 +123,51 @@ export const SpatialLab: React.FC = () => {
                 reference: 'Gonzalez & Woods, Digital Image Processing, Section 3.4 - 3.6',
               })
             }
-            className="p-1.5 rounded-lg bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-colors"
+            className="p-1.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-400 hover:text-slate-200 transition-colors"
+            title="Algorithm Theory"
           >
-            <HelpCircle size={16} className="text-emerald-400" />
+            <HelpCircle size={13} className="text-emerald-400" />
           </button>
         </div>
 
         {/* Category Tabs */}
-        <div className="grid grid-cols-4 gap-1 bg-charcoal-950 p-1 rounded-lg border border-slate-800 text-xs">
-          <button
-            onClick={() => {
-              setActiveCategory('smoothing');
-              setFilterType('gaussian');
-              handleApplyFilter('gaussian');
-            }}
-            className={`py-1.5 px-1 rounded font-medium transition-colors text-center ${
-              activeCategory === 'smoothing' ? 'bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Smoothing
-          </button>
-          <button
-            onClick={() => {
-              setActiveCategory('sharpening');
-              setFilterType('laplacian');
-              handleApplyFilter('laplacian');
-            }}
-            className={`py-1.5 px-1 rounded font-medium transition-colors text-center ${
-              activeCategory === 'sharpening' ? 'bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Sharpen
-          </button>
-          <button
-            onClick={() => {
-              setActiveCategory('edges');
-              setFilterType('sobel');
-              handleApplyFilter('sobel');
-            }}
-            className={`py-1.5 px-1 rounded font-medium transition-colors text-center ${
-              activeCategory === 'edges' ? 'bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Edges
-          </button>
-          <button
-            onClick={() => {
-              setActiveCategory('step_math');
-              handleInspectStep(inspectCoord[0], inspectCoord[1]);
-            }}
-            className={`py-1.5 px-1 rounded font-medium transition-colors text-center ${
-              activeCategory === 'step_math' ? 'bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Math Step
-          </button>
+        <div className="grid grid-cols-4 gap-1 bg-obsidian-950 p-1 rounded-md border border-hairline text-[11px] font-mono">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                setActiveCategory(cat.id);
+                if (cat.id === 'smoothing') {
+                  setFilterType('gaussian');
+                  handleApplyFilter('gaussian');
+                } else if (cat.id === 'sharpening') {
+                  setFilterType('laplacian');
+                  handleApplyFilter('laplacian');
+                } else if (cat.id === 'edges') {
+                  setFilterType('sobel');
+                  handleApplyFilter('sobel');
+                } else if (cat.id === 'step_math') {
+                  handleInspectStep(inspectCoord[0], inspectCoord[1]);
+                }
+              }}
+              className={`py-1.5 px-1 rounded transition-colors text-center truncate ${
+                activeCategory === cat.id
+                  ? 'bg-surface-raised text-emerald-300 font-semibold border border-hairline shadow-sm'
+                  : 'text-slate-400 hover:text-slate-300 hover:bg-surface-raised/40'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
         {/* Tab 1: Smoothing */}
         {activeCategory === 'smoothing' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-1.5 bg-charcoal-950 p-1.5 rounded-lg border border-slate-800 text-xs font-mono">
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-1 bg-obsidian-950 p-1.5 rounded border border-hairline text-[11px] font-mono">
               {[
                 { id: 'mean', label: 'Box Mean' },
-                { id: 'weighted_average', label: 'Weighted Avg' },
+                { id: 'weighted_average', label: 'Weighted' },
                 { id: 'gaussian', label: 'Gaussian' },
                 { id: 'median', label: 'Median' },
                 { id: 'min', label: 'Min (Erode)' },
@@ -186,10 +179,10 @@ export const SpatialLab: React.FC = () => {
                     setFilterType(f.id);
                     handleApplyFilter(f.id);
                   }}
-                  className={`py-2 px-1 rounded text-center transition-colors truncate ${
+                  className={`py-1.5 px-1 rounded text-center transition-colors truncate ${
                     filterType === f.id
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-surface-raised text-emerald-300 border border-emerald-800/60 font-semibold shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-surface-raised/30'
                   }`}
                 >
                   {f.label}
@@ -197,9 +190,9 @@ export const SpatialLab: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
               <ParameterSlider
-                label="Kernel Dimensions (N × N)"
+                label="Kernel Size (N × N)"
                 value={kernelSize}
                 min={3}
                 max={15}
@@ -213,7 +206,7 @@ export const SpatialLab: React.FC = () => {
 
               {filterType === 'gaussian' && (
                 <ParameterSlider
-                  label="Gaussian Standard Deviation (σ)"
+                  label="Gaussian Sigma (σ)"
                   value={gaussianSigma}
                   min={0.2}
                   max={5.0}
@@ -230,11 +223,11 @@ export const SpatialLab: React.FC = () => {
 
         {/* Tab 2: Sharpening */}
         {activeCategory === 'sharpening' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-1.5 bg-charcoal-950 p-1.5 rounded-lg border border-slate-800 text-xs font-mono">
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-1 bg-obsidian-950 p-1.5 rounded border border-hairline text-[11px] font-mono">
               {[
                 { id: 'laplacian', label: 'Laplacian' },
-                { id: 'unsharp_masking', label: 'Unsharp Mask' },
+                { id: 'unsharp_masking', label: 'Unsharp' },
                 { id: 'high_boost', label: 'High-Boost' },
               ].map((f) => (
                 <button
@@ -243,10 +236,10 @@ export const SpatialLab: React.FC = () => {
                     setFilterType(f.id);
                     handleApplyFilter(f.id);
                   }}
-                  className={`py-2 px-1 rounded text-center transition-colors truncate ${
+                  className={`py-1.5 px-1 rounded text-center transition-colors truncate ${
                     filterType === f.id
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-surface-raised text-emerald-300 border border-emerald-800/60 font-semibold shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-surface-raised/30'
                   }`}
                 >
                   {f.label}
@@ -254,11 +247,13 @@ export const SpatialLab: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
               {filterType === 'laplacian' && (
                 <div>
-                  <span className="text-xs text-slate-300 font-medium block mb-2">Connectivity Mode:</span>
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-2">
+                    Kernel Adjacency Topology
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                     <button
                       onClick={() => {
                         setLaplacianMode('4_neighbor');
@@ -266,11 +261,11 @@ export const SpatialLab: React.FC = () => {
                       }}
                       className={`py-1.5 rounded border ${
                         laplacianMode === '4_neighbor'
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                          : 'bg-charcoal-850 text-slate-400 border-slate-800'
+                          ? 'bg-obsidian-950 text-emerald-300 border-emerald-800/60 font-semibold'
+                          : 'bg-surface-raised text-slate-400 border-hairline'
                       }`}
                     >
-                      4-Neighbor (center -4)
+                      4-Neighbor (C: -4)
                     </button>
                     <button
                       onClick={() => {
@@ -279,11 +274,11 @@ export const SpatialLab: React.FC = () => {
                       }}
                       className={`py-1.5 rounded border ${
                         laplacianMode === '8_neighbor'
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                          : 'bg-charcoal-850 text-slate-400 border-slate-800'
+                          ? 'bg-obsidian-950 text-emerald-300 border-emerald-800/60 font-semibold'
+                          : 'bg-surface-raised text-slate-400 border-hairline'
                       }`}
                     >
-                      8-Neighbor (center -8)
+                      8-Neighbor (C: -8)
                     </button>
                   </div>
                 </div>
@@ -296,7 +291,7 @@ export const SpatialLab: React.FC = () => {
                   min={1.1}
                   max={4.0}
                   step={0.1}
-                  description="g(x,y) = f(x,y) + k * g_mask(x,y)"
+                  description="g(x,y) = f(x,y) + k · g_mask(x,y)"
                   onChange={(val) => {
                     setKBoost(val);
                     handleApplyFilter('high_boost', kernelSize, gaussianSigma, val);
@@ -309,10 +304,10 @@ export const SpatialLab: React.FC = () => {
 
         {/* Tab 3: Edges */}
         {activeCategory === 'edges' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-1.5 bg-charcoal-950 p-1.5 rounded-lg border border-slate-800 text-xs font-mono">
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-1 bg-obsidian-950 p-1.5 rounded border border-hairline text-[11px] font-mono">
               {[
-                { id: 'sobel', label: 'Sobel Magnitude' },
+                { id: 'sobel', label: 'Sobel Mag' },
                 { id: 'sobel_x', label: 'Sobel Gx' },
                 { id: 'sobel_y', label: 'Sobel Gy' },
                 { id: 'prewitt', label: 'Prewitt Mag' },
@@ -325,10 +320,10 @@ export const SpatialLab: React.FC = () => {
                     setFilterType(f.id);
                     handleApplyFilter(f.id);
                   }}
-                  className={`py-2 px-1 rounded text-center transition-colors truncate ${
+                  className={`py-1.5 px-1 rounded text-center transition-colors truncate ${
                     filterType === f.id
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      ? 'bg-surface-raised text-emerald-300 border border-emerald-800/60 font-semibold shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-surface-raised/30'
                   }`}
                 >
                   {f.label}
@@ -336,39 +331,42 @@ export const SpatialLab: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800 text-xs text-slate-400 leading-relaxed">
-              First-order partial derivative gradient operators: <br />
-              <code className="text-emerald-400">Gx</code> highlights vertical edges; <br />
-              <code className="text-emerald-400">Gy</code> highlights horizontal edges; <br />
-              Magnitude <code className="text-cyan-400">M = sqrt(Gx² + Gy²)</code> captures omnidirectional edges.
+            <div className="bg-obsidian-950 p-3 rounded-lg border border-hairline text-[11px] font-mono text-slate-400 leading-relaxed space-y-1">
+              <span className="text-emerald-400 font-semibold uppercase text-[10px] block">
+                1st Order Gradient Operators:
+              </span>
+              <div><span className="text-slate-300">Gx:</span> Emphasizes vertical edges | <span className="text-slate-300">Gy:</span> Horizontal edges</div>
+              <div><span className="text-cyan-300">|∇f| = √(Gx² + Gy²):</span> Isotropic directional gradient magnitude</div>
             </div>
           </div>
         )}
 
         {/* Tab 4: Step-by-Step Convolution Math Stepper */}
         {activeCategory === 'step_math' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <div className="flex items-center justify-between text-xs font-mono mb-2">
-                <span className="text-emerald-400 font-semibold uppercase">Inspection Target</span>
-                <span className="text-slate-300">({inspectCoord[0]}, {inspectCoord[1]})</span>
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3 rounded-lg border border-hairline space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-mono">
+                <span className="text-emerald-400 font-semibold uppercase text-[10px]">
+                  Local Patch Coordinate
+                </span>
+                <span className="text-slate-300 tabular-nums">[{inspectCoord[0]}, {inspectCoord[1]}]</span>
               </div>
-              <p className="text-[11px] text-slate-400">
-                Click anywhere on the image to compute the step-by-step element-wise convolution at that exact coordinate.
+              <p className="text-[10px] text-slate-400">
+                Click any pixel in the viewport to execute a live step-by-step 3×3 convolution evaluation.
               </p>
             </div>
 
             {stepData && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* 1. Neighborhood Patch P */}
-                <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
+                <div className="bg-surface-raised p-3 rounded-lg border border-hairline">
                   <span className="text-[10px] font-mono text-cyan-400 uppercase font-semibold block mb-1.5">
                     1. Neighborhood Patch f(x+s, y+t)
                   </span>
                   <div className="grid grid-cols-3 gap-1 font-mono text-center text-[10px]">
                     {stepData.neighborhood_patch.map((row, r) =>
                       row.map((val, c) => (
-                        <div key={`${r}-${c}`} className="bg-charcoal-900 py-1 rounded text-slate-300">
+                        <div key={`${r}-${c}`} className="bg-obsidian-950 py-1 rounded border border-hairline text-slate-300 tabular-nums">
                           {val}
                         </div>
                       ))
@@ -377,14 +375,14 @@ export const SpatialLab: React.FC = () => {
                 </div>
 
                 {/* 2. Kernel Matrix W */}
-                <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
+                <div className="bg-surface-raised p-3 rounded-lg border border-hairline">
                   <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold block mb-1.5">
                     2. Filter Kernel w(s,t)
                   </span>
                   <div className="grid grid-cols-3 gap-1 font-mono text-center text-[10px]">
                     {stepData.kernel_matrix.map((row, r) =>
                       row.map((val, c) => (
-                        <div key={`${r}-${c}`} className="bg-charcoal-900 py-1 rounded text-emerald-400">
+                        <div key={`${r}-${c}`} className="bg-obsidian-950 py-1 rounded border border-hairline text-emerald-400 tabular-nums">
                           {val.toFixed(2)}
                         </div>
                       ))
@@ -393,17 +391,19 @@ export const SpatialLab: React.FC = () => {
                 </div>
 
                 {/* 3. Element-wise Products & Summation */}
-                <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800 font-mono text-xs space-y-2">
+                <div className="bg-surface-raised p-3 rounded-lg border border-hairline font-mono text-[11px] space-y-1.5">
                   <span className="text-[10px] text-amber-400 uppercase font-semibold block">
-                    3. Sum of Products: ∑ w(s,t) · f(...)
+                    3. Discrete Sum of Products: ∑ w(s,t) · f(...)
                   </span>
-                  <div className="flex justify-between py-1 border-b border-slate-800 text-xs">
-                    <span className="text-slate-400">Float Sum:</span>
-                    <span className="text-white font-bold">{stepData.summation.toFixed(3)}</span>
+                  <div className="flex justify-between py-1 border-b border-hairline">
+                    <span className="text-slate-400">Float Summation:</span>
+                    <span className="text-white font-bold tabular-nums">{stepData.summation.toFixed(3)}</span>
                   </div>
-                  <div className="flex justify-between py-1 text-xs">
-                    <span className="text-cyan-400 font-semibold">Clipped Output g(x,y):</span>
-                    <span className="text-cyan-300 font-bold text-sm">{stepData.resulting_pixel}</span>
+                  <div className="flex justify-between py-1 items-center">
+                    <span className="text-cyan-400 font-semibold">Normalized Output g(x,y):</span>
+                    <span className="text-cyan-300 font-bold text-sm tabular-nums bg-obsidian-950 px-2 py-0.5 rounded border border-hairline">
+                      {stepData.resulting_pixel}
+                    </span>
                   </div>
                 </div>
               </div>

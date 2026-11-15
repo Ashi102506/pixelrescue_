@@ -84,16 +84,20 @@ export const ExperimentHistoryLab: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 space-y-6 overflow-y-auto h-full max-w-7xl mx-auto">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto h-full max-w-7xl mx-auto bg-obsidian-950 font-sans">
       {/* Header & Save Form */}
-      <div className="bg-charcoal-900 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-surface-raised border border-hairline rounded-lg p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] font-mono text-cyan-400 font-semibold tracking-wider uppercase">
-            Persistent Scientific Journal
-          </span>
-          <h2 className="text-xl font-bold text-white tracking-tight">Experiment History</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Persisted in local SQLite database. Compare parameters, output fidelity, and metric convergence.
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-mono text-cyan-400 font-semibold px-1.5 py-0.5 rounded bg-cyan-950/50 border border-cyan-800/40">
+              LOG · PERSISTENCE
+            </span>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-200">
+              Experiment History Journal
+            </h2>
+          </div>
+          <p className="text-[11px] text-slate-400 font-mono mt-1">
+            Persisted in local SQLite database. Track parameters, output fidelity, and metric convergence.
           </p>
         </div>
 
@@ -101,69 +105,69 @@ export const ExperimentHistoryLab: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <input
             type="text"
-            placeholder="Experiment Name..."
+            placeholder="Experiment label..."
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
-            className="bg-charcoal-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 w-48"
+            className="bg-obsidian-950 border border-hairline rounded px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-slate-500 font-mono w-52 placeholder:text-slate-600"
           />
           <button
             onClick={handleSaveCurrentExperiment}
-            className="flex items-center space-x-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-charcoal-950 font-bold rounded-lg text-xs shadow-glow-cyan transition-all"
+            className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-white text-obsidian-950 font-semibold rounded text-xs border border-white/20 transition-all shadow-sm active:scale-[0.99]"
           >
-            <Save size={13} />
-            <span>Record Experiment</span>
+            <Save size={12} />
+            <span>Record Trial</span>
           </button>
         </div>
       </div>
 
       {/* Comparison Drawer (if activated) */}
       {isComparing && selectedExpA && selectedExpB && (
-        <div className="bg-charcoal-900 border border-cyan-500/40 rounded-2xl p-6 shadow-2xl space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <span className="text-xs font-mono text-cyan-400 font-bold uppercase flex items-center space-x-1.5">
-              <Columns size={14} />
+        <div className="bg-surface-raised border border-cyan-800/60 rounded-lg p-4 shadow-xl space-y-3 font-mono">
+          <div className="flex items-center justify-between pb-2 border-b border-hairline">
+            <span className="text-xs text-cyan-400 font-semibold uppercase flex items-center space-x-1.5">
+              <Columns size={13} />
               <span>Comparative Experiment Analysis</span>
             </span>
             <button
               onClick={() => setIsComparing(false)}
-              className="text-xs text-slate-400 hover:text-slate-200"
+              className="text-[11px] text-slate-400 hover:text-slate-200 font-mono"
             >
-              Close Comparison
+              Close Comparison [×]
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Trial A */}
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-              <div className="flex justify-between items-center text-xs font-mono">
-                <span className="text-cyan-400 font-bold">Experiment A: {selectedExpA.title}</span>
-                <span className="text-slate-400">{selectedExpA.algorithm}</span>
+            <div className="bg-obsidian-950 p-3 rounded border border-hairline space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-cyan-400 font-bold">A: {selectedExpA.title}</span>
+                <span className="text-slate-500 text-[10px]">{selectedExpA.algorithm}</span>
               </div>
               <img
                 src={selectedExpA.output_preview}
                 alt="Exp A"
-                className="h-48 w-full object-contain rounded-lg bg-black/40 border border-slate-800"
+                className="h-44 w-full object-contain rounded bg-black/40 border border-hairline"
               />
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300">
-                <div>PSNR: {selectedExpA.metrics?.psnr_db ?? 'N/A'} dB</div>
-                <div>SSIM: {selectedExpA.metrics?.ssim?.toFixed(4) ?? 'N/A'}</div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 pt-1">
+                <div>PSNR: <strong className="text-white tabular-nums">{selectedExpA.metrics?.psnr_db ?? 'N/A'} dB</strong></div>
+                <div>SSIM: <strong className="text-white tabular-nums">{selectedExpA.metrics?.ssim?.toFixed(4) ?? 'N/A'}</strong></div>
               </div>
             </div>
 
             {/* Trial B */}
-            <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-              <div className="flex justify-between items-center text-xs font-mono">
-                <span className="text-violet-400 font-bold">Experiment B: {selectedExpB.title}</span>
-                <span className="text-slate-400">{selectedExpB.algorithm}</span>
+            <div className="bg-obsidian-950 p-3 rounded border border-hairline space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-purple-400 font-bold">B: {selectedExpB.title}</span>
+                <span className="text-slate-500 text-[10px]">{selectedExpB.algorithm}</span>
               </div>
               <img
                 src={selectedExpB.output_preview}
                 alt="Exp B"
-                className="h-48 w-full object-contain rounded-lg bg-black/40 border border-slate-800"
+                className="h-44 w-full object-contain rounded bg-black/40 border border-hairline"
               />
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300">
-                <div>PSNR: {selectedExpB.metrics?.psnr_db ?? 'N/A'} dB</div>
-                <div>SSIM: {selectedExpB.metrics?.ssim?.toFixed(4) ?? 'N/A'}</div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 pt-1">
+                <div>PSNR: <strong className="text-white tabular-nums">{selectedExpB.metrics?.psnr_db ?? 'N/A'} dB</strong></div>
+                <div>SSIM: <strong className="text-white tabular-nums">{selectedExpB.metrics?.ssim?.toFixed(4) ?? 'N/A'}</strong></div>
               </div>
             </div>
           </div>
@@ -172,41 +176,43 @@ export const ExperimentHistoryLab: React.FC = () => {
 
       {/* Experiments List / Grid */}
       {experiments.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-slate-800 rounded-2xl bg-charcoal-900/50 p-8">
-          <History size={40} className="mx-auto text-slate-600 mb-3" />
-          <h3 className="text-base font-semibold text-white mb-1">No Saved Experiments Yet</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Apply algorithms in any laboratory and click "Record Experiment" above to track parameters and comparative quality scores.
+        <div className="text-center py-16 border border-dashed border-hairline rounded-lg bg-surface-raised/40 p-8">
+          <History size={32} className="mx-auto text-slate-600 mb-2" />
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+            No Saved Experiments Recorded
+          </h3>
+          <p className="text-[11px] font-mono text-slate-500 max-w-sm mx-auto">
+            Apply algorithms in any laboratory and click "Record Trial" above to track parameters and comparative quality scores.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {experiments.map((exp) => (
             <div
               key={exp.id}
-              className="bg-charcoal-900 border border-slate-800 hover:border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-lg transition-all"
+              className="bg-surface-raised border border-hairline hover:border-slate-600 rounded-lg p-3.5 flex flex-col justify-between shadow-sm transition-all"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-white truncate max-w-[180px]">
+                  <span className="text-xs font-semibold text-slate-200 truncate max-w-[170px]">
                     {exp.title}
                   </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-charcoal-950 text-cyan-400 border border-slate-800">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-obsidian-950 text-cyan-400 border border-hairline">
                     {exp.algorithm}
                   </span>
                 </div>
 
                 {/* Thumbnails Comparison */}
                 <div className="grid grid-cols-2 gap-2 my-2">
-                  <div className="relative rounded overflow-hidden border border-slate-800 bg-black/40">
+                  <div className="relative rounded overflow-hidden border border-hairline bg-obsidian-950">
                     <img src={exp.input_preview} alt="Input" className="h-24 w-full object-cover" />
-                    <span className="absolute bottom-1 left-1 bg-black/70 text-[9px] font-mono px-1 rounded text-slate-300">
+                    <span className="absolute bottom-1 left-1 bg-obsidian-950/80 text-[9px] font-mono px-1 rounded text-slate-400 border border-hairline">
                       Input
                     </span>
                   </div>
-                  <div className="relative rounded overflow-hidden border border-slate-800 bg-black/40">
+                  <div className="relative rounded overflow-hidden border border-hairline bg-obsidian-950">
                     <img src={exp.output_preview} alt="Output" className="h-24 w-full object-cover" />
-                    <span className="absolute bottom-1 left-1 bg-black/70 text-[9px] font-mono px-1 rounded text-cyan-400">
+                    <span className="absolute bottom-1 left-1 bg-obsidian-950/80 text-[9px] font-mono px-1 rounded text-cyan-400 border border-hairline">
                       Output
                     </span>
                   </div>
@@ -215,25 +221,25 @@ export const ExperimentHistoryLab: React.FC = () => {
                 {/* Metrics */}
                 {exp.metrics && exp.metrics.psnr_db && (
                   <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-300 pt-1">
-                    <span>PSNR: <strong className="text-cyan-400">{exp.metrics.psnr_db} dB</strong></span>
-                    {exp.metrics.ssim && <span>SSIM: <strong className="text-violet-400">{exp.metrics.ssim.toFixed(3)}</strong></span>}
+                    <span>PSNR: <strong className="text-cyan-400 tabular-nums">{exp.metrics.psnr_db} dB</strong></span>
+                    {exp.metrics.ssim && <span>SSIM: <strong className="text-purple-400 tabular-nums">{exp.metrics.ssim.toFixed(3)}</strong></span>}
                   </div>
                 )}
 
-                <div className="text-[10px] text-slate-500 font-mono mt-2 flex items-center space-x-1">
+                <div className="text-[10px] text-slate-500 font-mono mt-1.5 flex items-center space-x-1">
                   <Calendar size={11} />
                   <span>{new Date(exp.created_at).toLocaleString()}</span>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-800/80 text-xs">
+              <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-hairline text-xs font-mono">
                 <button
                   onClick={() => handleLoadToWorkspace(exp)}
-                  className="flex items-center space-x-1 text-slate-300 hover:text-cyan-400 font-medium transition-colors"
+                  className="flex items-center space-x-1 text-slate-400 hover:text-cyan-400 transition-colors text-[11px]"
                 >
-                  <Eye size={13} />
-                  <span>Open in Workspace</span>
+                  <Eye size={12} />
+                  <span>Load</span>
                 </button>
 
                 <div className="flex items-center space-x-1">
@@ -248,19 +254,19 @@ export const ExperimentHistoryLab: React.FC = () => {
                     }}
                     className={`p-1.5 rounded transition-colors ${
                       selectedExpA?.id === exp.id || selectedExpB?.id === exp.id
-                        ? 'bg-cyan-500/20 text-cyan-300'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-700/50'
+                        : 'text-slate-500 hover:text-slate-300 hover:bg-surface-overlay'
                     }`}
-                    title="Select for Side-by-Side Comparison"
+                    title="Compare Trials"
                   >
-                    <Columns size={13} />
+                    <Columns size={12} />
                   </button>
                   <button
                     onClick={() => handleDelete(exp.id)}
-                    className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded transition-colors"
-                    title="Delete Experiment"
+                    className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-surface-overlay rounded transition-colors"
+                    title="Delete Trial"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={12} />
                   </button>
                 </div>
               </div>

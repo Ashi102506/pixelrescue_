@@ -60,7 +60,6 @@ export const FundamentalsLab: React.FC = () => {
 
   const handlePixelClick = (x: number, y: number) => {
     if (activeTab === 'distances') {
-      // Alternate setting p1 and p2
       setP2([x, y]);
       handleCalculateDistance(p1, [x, y]);
     } else if (activeTab === 'connectivity') {
@@ -108,23 +107,22 @@ export const FundamentalsLab: React.FC = () => {
     }
   };
 
-  const handleCalculateDistance = async (pt1 = p1, pt2 = p2) => {
+  const handleCalculateDistance = async (pt1: [number, number] = p1, pt2: [number, number] = p2) => {
     try {
-      const res = await api.calculateDistances(pt1, pt2, metadata?.width || 256, metadata?.height || 256);
+      const res = await api.calculateDistances(pt1, pt2);
       setDistanceData(res);
-      setProcessedImage(res.overlay_image, 'Pixel Distance Metric Overlay');
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleRunConnectivity = async (seed = connSeed, thresh = connThreshold) => {
+  const handleRunConnectivity = async (seed: [number, number] = connSeed, thresh: number = connThreshold) => {
     if (!originalImage) return;
-    setProcessing(true, 'Analyzing 4 vs 8 connectivity...');
+    setProcessing(true, 'Computing 4 and 8-connectivity...');
     try {
       const res = await api.analyzeConnectivity(originalImage, seed[0], seed[1], thresh);
       setConnData(res);
-      setProcessedImage(res.comparison_overlay, 'Connected Component (4 vs 8 Connectivity)');
+      setProcessedImage(res.overlay_8_connected, `8-Connected Component (Seed: ${seed[0]}, ${seed[1]})`);
     } catch (e) {
       console.error(e);
     } finally {
@@ -132,25 +130,38 @@ export const FundamentalsLab: React.FC = () => {
     }
   };
 
+  const tabs = [
+    { id: 'sampling', label: 'Sampling' },
+    { id: 'quantization', label: 'Quantization' },
+    { id: 'channels', label: 'Channels' },
+    { id: 'distances', label: 'Distance' },
+    { id: 'connectivity', label: '4/8 Conn' },
+  ] as const;
+
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-obsidian-950">
       {/* Center Image Workspace */}
-      <div className="flex-1 p-4 flex flex-col min-w-0">
+      <div className="flex-1 p-3 flex flex-col min-w-0">
         <ImageViewer
           onPixelHover={handlePixelHover}
           onPixelClick={handlePixelClick}
         />
       </div>
 
-      {/* Right Inspector & Controls */}
-      <div className="w-full lg:w-96 bg-charcoal-900 border-l border-slate-800 p-5 overflow-y-auto space-y-6 select-none shrink-0">
-        {/* Module Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <span className="text-[10px] font-mono text-cyan-400 font-semibold tracking-wider uppercase">
-              Module 1
+      {/* Right Precision Telemetry & Controls */}
+      <div className="w-full lg:w-96 bg-obsidian-900 border-l border-hairline p-4 overflow-y-auto space-y-4 select-none shrink-0 font-sans">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-mono text-cyan-400 font-semibold px-1.5 py-0.5 rounded bg-cyan-950/50 border border-cyan-800/40">
+              01
             </span>
-            <h2 className="text-lg font-bold text-white tracking-tight">Image Fundamentals</h2>
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Image Fundamentals
+              </h2>
+              <p className="text-[10px] font-mono text-slate-500">Spatial & Intensity Digitization</p>
+            </div>
           </div>
           <button
             onClick={() =>
@@ -170,87 +181,64 @@ export const FundamentalsLab: React.FC = () => {
                 reference: 'Gonzalez & Woods, Digital Image Processing, Section 2.4',
               })
             }
-            className="p-1.5 rounded-lg bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-colors"
+            className="p-1.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-400 hover:text-slate-200 transition-colors"
             title="Algorithm Theory"
           >
-            <HelpCircle size={16} className="text-cyan-400" />
+            <HelpCircle size={13} className="text-cyan-400" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="grid grid-cols-3 gap-1 bg-charcoal-950 p-1 rounded-lg border border-slate-800 text-xs">
-          <button
-            onClick={() => setActiveTab('sampling')}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'sampling' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Sampling
-          </button>
-          <button
-            onClick={() => setActiveTab('quantization')}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'quantization' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Quantization
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('channels');
-              if (!channelsData) handleSeparateChannels();
-            }}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'channels' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Channels
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('distances');
-              handleCalculateDistance();
-            }}
-            className={`py-1.5 px-2 rounded font-medium transition-colors ${
-              activeTab === 'distances' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Distances
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('connectivity');
-              handleRunConnectivity();
-            }}
-            className={`py-1.5 px-2 rounded font-medium transition-colors col-span-2 ${
-              activeTab === 'connectivity' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Connectivity (4 vs 8)
-          </button>
+        <div className="grid grid-cols-5 gap-1 bg-obsidian-950 p-1 rounded-md border border-hairline text-[11px] font-mono">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (tab.id === 'channels' && !channelsData) handleSeparateChannels();
+                if (tab.id === 'distances') handleCalculateDistance();
+                if (tab.id === 'connectivity') handleRunConnectivity();
+              }}
+              className={`py-1.5 px-1 rounded transition-colors text-center truncate ${
+                activeTab === tab.id
+                  ? 'bg-surface-raised text-cyan-300 font-semibold border border-hairline shadow-sm'
+                  : 'text-slate-400 hover:text-slate-300 hover:bg-surface-raised/40'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Tab 1: Sampling */}
         {activeTab === 'sampling' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <span className="text-xs font-mono text-cyan-400 font-semibold uppercase">Spatial Resolution</span>
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">
+                  Spatial Sub-sampling
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">
+                  {metadata ? `${Math.round(metadata.width / samplingFactor)}×${Math.round(metadata.height / samplingFactor)} px` : ''}
+                </span>
+              </div>
+
               <ParameterSlider
-                label="Downsampling Factor"
+                label="Downsample Step"
                 value={samplingFactor}
                 min={1}
                 max={32}
                 step={1}
                 unit="x"
-                description={`Reduces grid to ${(metadata?.width || 256) / samplingFactor} × ${(metadata?.height || 256) / samplingFactor} points`}
+                description={`Grid downsampled to 1/${samplingFactor} resolution`}
                 onChange={(val) => {
                   setSamplingFactor(val);
                   handleApplySampling(val, samplingInterp);
                 }}
               />
 
-              <div className="mt-3 flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Interpolation:</span>
+              <div className="pt-2 border-t border-hairline flex items-center justify-between text-[11px] font-mono">
+                <span className="text-slate-400">Reconstruction:</span>
                 <div className="flex space-x-1">
                   {['nearest', 'linear'].map((mode) => (
                     <button
@@ -259,10 +247,10 @@ export const FundamentalsLab: React.FC = () => {
                         setSamplingInterp(mode);
                         handleApplySampling(samplingFactor, mode);
                       }}
-                      className={`px-2.5 py-1 rounded text-xs capitalize ${
+                      className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono tracking-wider ${
                         samplingInterp === mode
-                          ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40'
-                          : 'bg-charcoal-850 text-slate-400 hover:text-slate-200 border border-slate-800'
+                          ? 'bg-cyan-950/60 text-cyan-300 font-semibold border border-cyan-700/50'
+                          : 'bg-obsidian-950 text-slate-500 hover:text-slate-300 border border-hairline'
                       }`}
                     >
                       {mode}
@@ -272,130 +260,145 @@ export const FundamentalsLab: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-xs text-slate-400 bg-charcoal-850/50 p-3 rounded-lg border border-slate-800 leading-relaxed">
-              <strong className="text-slate-300">Observation:</strong> Increasing the sampling factor downsamples spatial resolution. Nearest-neighbor reconstruction induces prominent square block artifacts (checkerboard pixelation), illustrating Nyquist-Shannon undersampling.
+            <div className="text-[11px] text-slate-400 bg-obsidian-950 p-3 rounded-lg border border-hairline leading-relaxed font-mono">
+              <span className="text-cyan-400 font-semibold uppercase text-[10px] block mb-1">Nyquist-Shannon Limit:</span>
+              Spatial downsampling without a pre-filter creates severe high-frequency aliasing and pixelation blocks.
             </div>
           </div>
         )}
 
         {/* Tab 2: Quantization */}
         {activeTab === 'quantization' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <span className="text-xs font-mono text-cyan-400 font-semibold uppercase">Intensity Resolution</span>
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">
+                  Amplitude Quantization
+                </span>
+                <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                  ~{Math.log2(quantLevels).toFixed(1)} bpp
+                </span>
+              </div>
+
               <ParameterSlider
-                label="Discrete Intensity Levels (L)"
+                label="Gray Levels (L)"
                 value={quantLevels}
                 min={2}
                 max={128}
                 step={2}
-                description={`Equivalent bit depth: ~${Math.log2(quantLevels).toFixed(1)} bits/pixel`}
+                description="Discrete intensity partitions [0..L-1]"
                 onChange={(val) => {
                   setQuantLevels(val);
                   handleApplyQuantization(val);
                 }}
               />
-              <div className="flex justify-between text-[11px] font-mono text-slate-400 mt-2">
-                <span>1-bit (B&W)</span>
+
+              <div className="flex justify-between text-[10px] font-mono text-slate-500 pt-1 border-t border-hairline">
+                <span>1-bit (2)</span>
                 <span>4-bit (16)</span>
                 <span>8-bit (256)</span>
               </div>
             </div>
 
-            <div className="text-xs text-slate-400 bg-charcoal-850/50 p-3 rounded-lg border border-slate-800 leading-relaxed">
-              <strong className="text-slate-300">False Contouring:</strong> As intensity levels decrease below 16 (4-bit), smooth gradual luminance changes break down into distinct bands or steps. This phenomenon is known as false contouring.
+            <div className="text-[11px] text-slate-400 bg-obsidian-950 p-3 rounded-lg border border-hairline leading-relaxed font-mono">
+              <span className="text-amber-400 font-semibold uppercase text-[10px] block mb-1">False Contouring:</span>
+              Reducing quantization below 16 levels reveals visible artificial boundary steps across smooth gradients.
             </div>
           </div>
         )}
 
         {/* Tab 3: Channels */}
         {activeTab === 'channels' && channelsData && (
-          <div className="space-y-4">
-            <span className="text-xs font-mono text-cyan-400 font-semibold uppercase">Decomposed Color Channels</span>
+          <div className="space-y-3">
+            <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold block">
+              Tri-Stimulus RGB Split
+            </span>
             <div className="grid grid-cols-3 gap-2">
-              <div
+              <button
                 onClick={() => setProcessedImage(channelsData.r, 'Red Channel')}
-                className="cursor-pointer bg-charcoal-950 p-2 rounded border border-red-900/50 hover:border-red-500 text-center"
+                className="bg-surface-raised p-1.5 rounded border border-red-950/60 hover:border-red-500/80 transition-colors text-center group"
               >
-                <img src={channelsData.r} alt="Red" className="w-full h-16 object-cover rounded mb-1" />
-                <span className="text-[11px] font-mono text-red-400 font-bold">Red (R)</span>
-              </div>
-              <div
+                <img src={channelsData.r} alt="Red" className="w-full h-14 object-cover rounded mb-1 border border-hairline" />
+                <span className="text-[10px] font-mono text-red-400 font-semibold">Red (R)</span>
+              </button>
+              <button
                 onClick={() => setProcessedImage(channelsData.g, 'Green Channel')}
-                className="cursor-pointer bg-charcoal-950 p-2 rounded border border-green-900/50 hover:border-green-500 text-center"
+                className="bg-surface-raised p-1.5 rounded border border-emerald-950/60 hover:border-emerald-500/80 transition-colors text-center group"
               >
-                <img src={channelsData.g} alt="Green" className="w-full h-16 object-cover rounded mb-1" />
-                <span className="text-[11px] font-mono text-green-400 font-bold">Green (G)</span>
-              </div>
-              <div
+                <img src={channelsData.g} alt="Green" className="w-full h-14 object-cover rounded mb-1 border border-hairline" />
+                <span className="text-[10px] font-mono text-emerald-400 font-semibold">Green (G)</span>
+              </button>
+              <button
                 onClick={() => setProcessedImage(channelsData.b, 'Blue Channel')}
-                className="cursor-pointer bg-charcoal-950 p-2 rounded border border-blue-900/50 hover:border-blue-500 text-center"
+                className="bg-surface-raised p-1.5 rounded border border-blue-950/60 hover:border-blue-500/80 transition-colors text-center group"
               >
-                <img src={channelsData.b} alt="Blue" className="w-full h-16 object-cover rounded mb-1" />
-                <span className="text-[11px] font-mono text-blue-400 font-bold">Blue (B)</span>
-              </div>
+                <img src={channelsData.b} alt="Blue" className="w-full h-14 object-cover rounded mb-1 border border-hairline" />
+                <span className="text-[10px] font-mono text-blue-400 font-semibold">Blue (B)</span>
+              </button>
             </div>
 
-            <div className="pt-2">
-              <span className="text-xs font-mono text-slate-400 mb-2 block">Grayscale Projections</span>
-              <div className="grid grid-cols-3 gap-2">
-                <div
-                  onClick={() => setProcessedImage(channelsData.r_gray, 'Red (Gray Intensity)')}
-                  className="cursor-pointer bg-charcoal-950 p-2 rounded border border-slate-800 hover:border-slate-600 text-center"
-                >
-                  <img src={channelsData.r_gray} alt="R Gray" className="w-full h-16 object-cover rounded mb-1" />
-                  <span className="text-[10px] font-mono text-slate-400">R (Intensity)</span>
-                </div>
-                <div
-                  onClick={() => setProcessedImage(channelsData.g_gray, 'Green (Gray Intensity)')}
-                  className="cursor-pointer bg-charcoal-950 p-2 rounded border border-slate-800 hover:border-slate-600 text-center"
-                >
-                  <img src={channelsData.g_gray} alt="G Gray" className="w-full h-16 object-cover rounded mb-1" />
-                  <span className="text-[10px] font-mono text-slate-400">G (Intensity)</span>
-                </div>
-                <div
-                  onClick={() => setProcessedImage(channelsData.b_gray, 'Blue (Gray Intensity)')}
-                  className="cursor-pointer bg-charcoal-950 p-2 rounded border border-slate-800 hover:border-slate-600 text-center"
-                >
-                  <img src={channelsData.b_gray} alt="B Gray" className="w-full h-16 object-cover rounded mb-1" />
-                  <span className="text-[10px] font-mono text-slate-400">B (Intensity)</span>
-                </div>
-              </div>
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block pt-2">
+              Scalar Gray Projections
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => setProcessedImage(channelsData.r_gray, 'Red (Gray Intensity)')}
+                className="bg-surface-raised p-1.5 rounded border border-hairline hover:border-slate-500 text-center"
+              >
+                <img src={channelsData.r_gray} alt="R Gray" className="w-full h-14 object-cover rounded mb-1" />
+                <span className="text-[10px] font-mono text-slate-400">R Intensity</span>
+              </button>
+              <button
+                onClick={() => setProcessedImage(channelsData.g_gray, 'Green (Gray Intensity)')}
+                className="bg-surface-raised p-1.5 rounded border border-hairline hover:border-slate-500 text-center"
+              >
+                <img src={channelsData.g_gray} alt="G Gray" className="w-full h-14 object-cover rounded mb-1" />
+                <span className="text-[10px] font-mono text-slate-400">G Intensity</span>
+              </button>
+              <button
+                onClick={() => setProcessedImage(channelsData.b_gray, 'Blue (Gray Intensity)')}
+                className="bg-surface-raised p-1.5 rounded border border-hairline hover:border-slate-500 text-center"
+              >
+                <img src={channelsData.b_gray} alt="B Gray" className="w-full h-14 object-cover rounded mb-1" />
+                <span className="text-[10px] font-mono text-slate-400">B Intensity</span>
+              </button>
             </div>
           </div>
         )}
 
         {/* Tab 4: Distances */}
         {activeTab === 'distances' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <span className="text-xs font-mono text-cyan-400 font-semibold uppercase">Point Selection</span>
-              <p className="text-[11px] text-slate-400 mt-1 mb-3">
-                Click anywhere on the image to set Target Point P2.
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3 rounded-lg border border-hairline space-y-2.5">
+              <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold block">
+                Spatial Coordinate Bench
+              </span>
+              <p className="text-[10px] text-slate-400">
+                Click any pixel in viewport to place target point P2.
               </p>
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="bg-charcoal-900 p-2 rounded border border-emerald-500/40 text-emerald-400">
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                <div className="bg-obsidian-950 p-2 rounded border border-emerald-900/60 text-emerald-400">
                   P1: ({p1[0]}, {p1[1]})
                 </div>
-                <div className="bg-charcoal-900 p-2 rounded border border-rose-500/40 text-rose-400">
+                <div className="bg-obsidian-950 p-2 rounded border border-rose-900/60 text-rose-400">
                   P2: ({p2[0]}, {p2[1]})
                 </div>
               </div>
             </div>
 
             {distanceData && (
-              <div className="space-y-2 bg-charcoal-950 p-3 rounded-lg border border-slate-800 font-mono text-xs">
-                <div className="flex justify-between items-center py-1 border-b border-slate-800">
-                  <span className="text-violet-400 font-semibold">Euclidean (De):</span>
-                  <span className="text-white text-sm font-bold">{distanceData.euclidean} px</span>
+              <div className="bg-surface-raised p-3 rounded-lg border border-hairline font-mono text-xs space-y-2">
+                <div className="flex justify-between items-center py-1 border-b border-hairline">
+                  <span className="text-slate-400">Euclidean (De):</span>
+                  <span className="text-white font-bold tabular-nums">{distanceData.euclidean} px</span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-b border-slate-800">
-                  <span className="text-cyan-400 font-semibold">City-Block (D4):</span>
-                  <span className="text-white text-sm font-bold">{distanceData.cityblock_d4} px</span>
+                <div className="flex justify-between items-center py-1 border-b border-hairline">
+                  <span className="text-slate-400">City-Block (D4):</span>
+                  <span className="text-cyan-400 font-bold tabular-nums">{distanceData.cityblock_d4} px</span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-amber-400 font-semibold">Chessboard (D8):</span>
-                  <span className="text-white text-sm font-bold">{distanceData.chessboard_d8} px</span>
+                  <span className="text-slate-400">Chessboard (D8):</span>
+                  <span className="text-amber-400 font-bold tabular-nums">{distanceData.chessboard_d8} px</span>
                 </div>
               </div>
             )}
@@ -404,11 +407,18 @@ export const FundamentalsLab: React.FC = () => {
 
         {/* Tab 5: Connectivity */}
         {activeTab === 'connectivity' && (
-          <div className="space-y-4">
-            <div className="bg-charcoal-950 p-3 rounded-lg border border-slate-800">
-              <span className="text-xs font-mono text-cyan-400 font-semibold uppercase">Connected Components</span>
-              <p className="text-[11px] text-slate-400 mt-1 mb-2">
-                Click on the image to set Seed Point ({connSeed[0]}, {connSeed[1]}).
+          <div className="space-y-3">
+            <div className="bg-surface-raised p-3 rounded-lg border border-hairline space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">
+                  Seed Coordinate
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  ({connSeed[0]}, {connSeed[1]})
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400">
+                Click viewport to relocate seed flood point.
               </p>
               <ParameterSlider
                 label="Binarization Threshold (T)"
@@ -423,67 +433,69 @@ export const FundamentalsLab: React.FC = () => {
             </div>
 
             {connData && (
-              <div className="space-y-2 bg-charcoal-950 p-3 rounded-lg border border-slate-800 font-mono text-xs">
-                <div className="flex justify-between py-1 border-b border-slate-800">
-                  <span className="text-cyan-400">4-Connected Pixels:</span>
-                  <span className="text-white font-bold">{connData.pixels_4_connected}</span>
+              <div className="bg-surface-raised p-3 rounded-lg border border-hairline font-mono text-xs space-y-2">
+                <div className="flex justify-between py-1 border-b border-hairline">
+                  <span className="text-cyan-400">4-Connected Set:</span>
+                  <span className="text-white font-bold tabular-nums">{connData.pixels_4_connected} px</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-blue-400">8-Connected Pixels:</span>
-                  <span className="text-white font-bold">{connData.pixels_8_connected}</span>
+                  <span className="text-emerald-400">8-Connected Set:</span>
+                  <span className="text-white font-bold tabular-nums">{connData.pixels_8_connected} px</span>
                 </div>
-                <p className="text-[10px] text-slate-400 pt-1 font-sans">
-                  Notice that 8-connectivity connects diagonally adjacent pixels, including regions where 4-connectivity stops.
+                <p className="text-[10px] text-slate-500 font-sans pt-1">
+                  8-connectivity includes diagonal adjacency, yielding larger connected components across noisy gaps.
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* Real-time Pixel Inspector Card */}
+        {/* Precision Pixel Inspector Card */}
         {inspection && (
-          <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-cyan-400 font-semibold uppercase">Pixel Coordinate</span>
-              <span className="text-slate-300">
-                ({inspection.pixel.x}, {inspection.pixel.y})
+          <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-cyan-400 font-semibold uppercase tracking-wider text-[10px]">
+                Active Pixel Probe
+              </span>
+              <span className="text-slate-300 tabular-nums">
+                [{inspection.pixel.x}, {inspection.pixel.y}]
               </span>
             </div>
 
             {/* RGB Swatch & Values */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 bg-obsidian-950 p-2 rounded border border-hairline">
               <div
                 style={{ backgroundColor: inspection.pixel.hex }}
-                className="w-10 h-10 rounded-lg border border-slate-700 shadow-md shrink-0"
+                className="w-8 h-8 rounded border border-hairline shadow-inner shrink-0"
               />
-              <div className="text-xs font-mono space-y-0.5">
-                <div className="flex space-x-2">
+              <div className="text-[11px] font-mono space-y-0.5">
+                <div className="flex space-x-2 font-medium">
                   <span className="text-red-400">R:{inspection.pixel.r}</span>
-                  <span className="text-green-400">G:{inspection.pixel.g}</span>
+                  <span className="text-emerald-400">G:{inspection.pixel.g}</span>
                   <span className="text-blue-400">B:{inspection.pixel.b}</span>
                 </div>
-                <div className="text-slate-400 text-[11px]">
-                  Gray: {inspection.pixel.grayscale_equivalent} • Hex: {inspection.pixel.hex}
+                <div className="text-slate-500 text-[10px]">
+                  Gray: {inspection.pixel.grayscale_equivalent} · {inspection.pixel.hex}
                 </div>
               </div>
             </div>
 
             {/* 3x3 Local Neighborhood Matrix */}
             <div>
-              <span className="text-[10px] font-mono text-slate-400 uppercase mb-1.5 block">
-                3×3 Local Neighborhood Window
+              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider mb-1 block">
+                3×3 Discrete Spatial Neighborhood Window
               </span>
-              <div className="grid grid-cols-3 gap-1 bg-charcoal-900 p-1.5 rounded-lg border border-slate-800/80 font-mono text-center text-[10px]">
+              <div className="grid grid-cols-3 gap-1 bg-obsidian-950 p-1.5 rounded border border-hairline font-mono text-center text-[10px]">
                 {inspection.neighborhood.matrix.map((row, rIdx) =>
                   row.map((val, cIdx) => {
                     const isCenter = rIdx === 1 && cIdx === 1;
                     return (
                       <div
                         key={`${rIdx}-${cIdx}`}
-                        className={`py-1 rounded ${
+                        className={`py-1 rounded font-mono tabular-nums ${
                           isCenter
-                            ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                            : 'bg-charcoal-950 text-slate-300'
+                            ? 'bg-cyan-950/70 text-cyan-300 font-bold border border-cyan-700/60'
+                            : 'bg-surface-raised/40 text-slate-400 border border-hairline/60'
                         }`}
                       >
                         {val}

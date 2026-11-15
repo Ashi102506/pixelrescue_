@@ -57,13 +57,13 @@ export const RestorationLab: React.FC = () => {
       setChallengeResult(res);
       setProcessedImage(res.restored_image, `Restored via ${restMethod.toUpperCase()}`, res.metrics_restored);
 
-      // Trigger confetti celebration if PSNR improved noticeably!
+      // Trigger subtle celebration if PSNR improved noticeably
       if (res.psnr_improvement_db > 1.5) {
         confetti({
-          particleCount: 80,
-          spread: 70,
+          particleCount: 60,
+          spread: 60,
           origin: { y: 0.6 },
-          colors: ['#00f2fe', '#8a2be2', '#10b981'],
+          colors: ['#38bdf8', '#10b981', '#ffffff'],
         });
       }
     } catch (e) {
@@ -74,21 +74,26 @@ export const RestorationLab: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+    <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-obsidian-950">
       {/* Center Image Workspace */}
-      <div className="flex-1 p-4 flex flex-col min-w-0">
+      <div className="flex-1 p-3 flex flex-col min-w-0">
         <ImageViewer />
       </div>
 
-      {/* Right Inspector & Controls */}
-      <div className="w-full lg:w-96 bg-charcoal-900 border-l border-slate-800 p-5 overflow-y-auto space-y-6 select-none shrink-0">
+      {/* Right Precision Telemetry & Controls */}
+      <div className="w-full lg:w-96 bg-obsidian-900 border-l border-hairline p-4 overflow-y-auto space-y-4 select-none shrink-0 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <span className="text-[10px] font-mono text-amber-400 font-semibold tracking-wider uppercase">
-              Module 5
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-mono text-amber-400 font-semibold px-1.5 py-0.5 rounded bg-amber-950/50 border border-amber-800/40">
+              05
             </span>
-            <h2 className="text-lg font-bold text-white tracking-tight">Image Restoration</h2>
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Image Restoration
+              </h2>
+              <p className="text-[10px] font-mono text-slate-500">Degradation Models & Wiener Deconv</p>
+            </div>
           </div>
           <button
             onClick={() =>
@@ -109,27 +114,31 @@ export const RestorationLab: React.FC = () => {
                 reference: 'Gonzalez & Woods, Digital Image Processing, Chapter 5',
               })
             }
-            className="p-1.5 rounded-lg bg-charcoal-850 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-colors"
+            className="p-1.5 rounded bg-surface-raised hover:bg-surface-overlay border border-hairline text-slate-400 hover:text-slate-200 transition-colors"
+            title="Algorithm Theory"
           >
-            <HelpCircle size={16} className="text-amber-400" />
+            <HelpCircle size={13} className="text-amber-400" />
           </button>
         </div>
 
         {/* Degradation Controls */}
-        <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <span className="text-xs font-mono text-amber-400 font-semibold uppercase block">
-            1. Degradation Model g = h * f + η
-          </span>
+        <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-amber-400 font-semibold uppercase tracking-wider">
+              1 · Optical Degradation Model
+            </span>
+            <span className="text-[10px] font-mono text-slate-500">g = h * f + η</span>
+          </div>
 
-          <div className="grid grid-cols-3 gap-1.5 text-xs font-mono">
+          <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono">
             {['motion', 'gaussian', 'none'].map((b) => (
               <button
                 key={b}
                 onClick={() => setBlurType(b)}
-                className={`py-1.5 rounded border capitalize ${
+                className={`py-1.5 rounded border capitalize transition-colors ${
                   blurType === b
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold'
-                    : 'bg-charcoal-900 text-slate-400 border-slate-800'
+                    ? 'bg-obsidian-950 text-amber-300 border-amber-800/60 font-semibold shadow-inner'
+                    : 'bg-surface-raised text-slate-400 border-hairline hover:text-slate-200'
                 }`}
               >
                 {b} Blur
@@ -161,17 +170,19 @@ export const RestorationLab: React.FC = () => {
           )}
 
           {/* Noise Selection */}
-          <div className="pt-2 border-t border-slate-800/80">
-            <span className="text-xs text-slate-300 font-medium block mb-2">Additive Noise Model:</span>
-            <div className="grid grid-cols-3 gap-1.5 text-xs font-mono">
+          <div className="pt-2 border-t border-hairline">
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">
+              Additive Stochastic Noise:
+            </span>
+            <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono">
               {['gaussian', 'salt_and_pepper', 'none'].map((n) => (
                 <button
                   key={n}
                   onClick={() => setNoiseType(n)}
-                  className={`py-1.5 rounded border capitalize ${
+                  className={`py-1.5 rounded border capitalize transition-colors ${
                     noiseType === n
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold'
-                      : 'bg-charcoal-900 text-slate-400 border-slate-800'
+                      ? 'bg-obsidian-950 text-amber-300 border-amber-800/60 font-semibold shadow-inner'
+                      : 'bg-surface-raised text-slate-400 border-hairline hover:text-slate-200'
                   }`}
                 >
                   {n === 'salt_and_pepper' ? 'Impulse' : n}
@@ -182,7 +193,7 @@ export const RestorationLab: React.FC = () => {
             {noiseType !== 'none' && (
               <div className="pt-2">
                 <ParameterSlider
-                  label="Noise Variance / Probability"
+                  label="Noise Variance (σ²)"
                   value={noiseStrength}
                   min={0.005}
                   max={0.1}
@@ -195,25 +206,25 @@ export const RestorationLab: React.FC = () => {
         </div>
 
         {/* Restoration Controls */}
-        <div className="bg-charcoal-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <span className="text-xs font-mono text-cyan-400 font-semibold uppercase block">
-            2. Restoration Algorithm
+        <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-3">
+          <span className="text-[10px] font-mono text-cyan-400 font-semibold uppercase tracking-wider block">
+            2 · Restoration Filter
           </span>
 
-          <div className="grid grid-cols-2 gap-1.5 text-xs font-mono">
+          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
             {[
               { id: 'wiener', label: 'Wiener (MMSE)' },
-              { id: 'inverse', label: 'Inverse Filter' },
+              { id: 'inverse', label: 'Direct Inverse' },
               { id: 'median', label: 'Median Filter' },
               { id: 'arithmetic_mean', label: 'Mean Filter' },
             ].map((m) => (
               <button
                 key={m.id}
                 onClick={() => setRestMethod(m.id)}
-                className={`py-2 px-1 rounded text-center border transition-colors ${
+                className={`py-1.5 px-2 rounded text-center border transition-colors truncate ${
                   restMethod === m.id
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
-                    : 'bg-charcoal-900 text-slate-400 border-slate-800'
+                    ? 'bg-obsidian-950 text-cyan-300 border-cyan-800/60 font-semibold shadow-inner'
+                    : 'bg-surface-raised text-slate-400 border-hairline hover:text-slate-200'
                 }`}
               >
                 {m.label}
@@ -223,25 +234,25 @@ export const RestorationLab: React.FC = () => {
 
           {restMethod === 'wiener' && (
             <ParameterSlider
-              label="Wiener Noise-to-Signal (K)"
+              label="Noise-to-Signal Power (K)"
               value={wienerK}
               min={0.0001}
               max={0.1}
               step={0.002}
-              description="Higher K suppresses noise but softens edges"
+              description="Balances deconvolution vs noise amplification"
               onChange={setWienerK}
             />
           )}
 
           {restMethod === 'inverse' && (
             <ParameterSlider
-              label="Direct Inverse Cutoff Radius (D0)"
+              label="Direct Cutoff Radius (D0)"
               value={inverseCutoff}
               min={10}
               max={100}
               step={5}
               unit="px"
-              description="Thresholds high frequencies to prevent noise explosion"
+              description="Low-pass radius prevents zero-divisor noise divergence"
               onChange={setInverseCutoff}
             />
           )}
@@ -249,66 +260,66 @@ export const RestorationLab: React.FC = () => {
           {/* Action Trigger */}
           <button
             onClick={handleRunChallenge}
-            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-charcoal-950 font-bold rounded-lg text-xs flex items-center justify-center space-x-2 shadow-glow-cyan transition-all mt-2"
+            className="w-full py-2 bg-slate-100 hover:bg-white text-obsidian-950 font-semibold rounded text-xs flex items-center justify-center space-x-2 border border-white/20 transition-all shadow-sm active:scale-[0.99] mt-2"
           >
-            <Wand2 size={15} />
-            <span>Execute Restoration Challenge</span>
+            <Wand2 size={13} />
+            <span>Execute Degradation & Restoration</span>
           </button>
         </div>
 
         {/* Objective Restoration Challenge Metrics Card */}
         {challengeResult && (
-          <div className="bg-charcoal-950 p-4 rounded-xl border border-cyan-500/40 shadow-glow-cyan space-y-3 font-mono">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-cyan-400 font-bold uppercase tracking-wider flex items-center space-x-1.5">
-                <Award size={14} className="text-amber-400" />
+          <div className="bg-surface-raised p-3.5 rounded-lg border border-hairline space-y-2.5 font-mono">
+            <div className="flex items-center justify-between pb-1.5 border-b border-hairline">
+              <span className="text-[10px] text-cyan-400 font-semibold uppercase tracking-wider flex items-center space-x-1.5">
+                <Award size={13} className="text-amber-400" />
                 <span>Restoration Scorecard</span>
               </span>
               <span
-                className={`text-xs px-2 py-0.5 rounded font-bold ${
+                className={`text-[10px] px-2 py-0.5 rounded font-bold tabular-nums ${
                   challengeResult.psnr_improvement_db > 0
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/50'
-                    : 'bg-rose-950 text-rose-300 border border-rose-700/50'
+                    ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-700/60'
+                    : 'bg-rose-950/70 text-rose-300 border border-rose-700/60'
                 }`}
               >
                 {challengeResult.psnr_improvement_db > 0 ? '+' : ''}
-                {challengeResult.psnr_improvement_db} dB
+                {challengeResult.psnr_improvement_db} dB ΔPSNR
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-              <div className="bg-charcoal-900 p-2 rounded border border-slate-800">
-                <div className="text-[10px] text-slate-400">Degraded PSNR</div>
-                <div className="text-sm font-bold text-slate-300">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-obsidian-950 p-2 rounded border border-hairline">
+                <div className="text-[9px] text-slate-500 uppercase">Degraded PSNR</div>
+                <div className="text-xs font-bold text-slate-300 tabular-nums">
                   {challengeResult.metrics_degraded.psnr_db} dB
                 </div>
               </div>
-              <div className="bg-charcoal-900 p-2 rounded border border-cyan-500/30">
-                <div className="text-[10px] text-cyan-400">Restored PSNR</div>
-                <div className="text-sm font-bold text-cyan-300">
+              <div className="bg-obsidian-950 p-2 rounded border border-cyan-900/60">
+                <div className="text-[9px] text-cyan-400 uppercase">Restored PSNR</div>
+                <div className="text-xs font-bold text-cyan-300 tabular-nums">
                   {challengeResult.metrics_restored.psnr_db} dB
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-charcoal-900 p-2 rounded border border-slate-800">
-                <div className="text-[10px] text-slate-400">Degraded SSIM</div>
-                <div className="text-sm font-bold text-slate-300">
-                  {challengeResult.metrics_degraded.ssim.toFixed(3)}
+              <div className="bg-obsidian-950 p-2 rounded border border-hairline">
+                <div className="text-[9px] text-slate-500 uppercase">Degraded SSIM</div>
+                <div className="text-xs font-bold text-slate-300 tabular-nums">
+                  {challengeResult.metrics_degraded.ssim.toFixed(4)}
                 </div>
               </div>
-              <div className="bg-charcoal-900 p-2 rounded border border-cyan-500/30">
-                <div className="text-[10px] text-cyan-400">Restored SSIM</div>
-                <div className="text-sm font-bold text-cyan-300">
-                  {challengeResult.metrics_restored.ssim.toFixed(3)}
+              <div className="bg-obsidian-950 p-2 rounded border border-cyan-900/60">
+                <div className="text-[9px] text-cyan-400 uppercase">Restored SSIM</div>
+                <div className="text-xs font-bold text-cyan-300 tabular-nums">
+                  {challengeResult.metrics_restored.ssim.toFixed(4)}
                 </div>
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-400 font-sans leading-tight pt-1">
-              Verified ground-truth comparison proving that mathematical deconvolution successfully recovered high-frequency structural energy.
-            </div>
+            <p className="text-[10px] text-slate-400 font-sans leading-relaxed pt-1">
+              Verified ground-truth comparison proving that Wiener deconvolution successfully attenuated noise while restoring edge gradients.
+            </p>
           </div>
         )}
       </div>
