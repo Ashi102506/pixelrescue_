@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Activity,
   HardDrive,
+  Sparkles,
 } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
 import { api } from '../../services/api';
@@ -100,25 +101,25 @@ export const TopNav: React.FC = () => {
   };
 
   return (
-    <header className="h-14 bg-obsidian-900 border-b border-hairline px-4 flex items-center justify-between z-30 select-none shrink-0">
+    <header className="h-16 bg-slate-950/80 border-b border-slate-800/80 px-4 md:px-6 flex items-center justify-between z-30 select-none shrink-0 backdrop-blur-xl font-sans">
       {/* Left: Dataset Selector & Upload */}
-      <div className="flex items-center space-x-2">
-        <div className="flex items-center bg-obsidian-950 border border-slate-700/60 rounded px-2.5 py-1 text-xs">
-          <span className="text-slate-500 font-mono text-[10px] uppercase mr-2 tracking-wider">
-            Target:
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 shadow-sm">
+          <span className="text-slate-400 font-mono text-[10px] uppercase font-semibold mr-2 tracking-wider">
+            Image:
           </span>
           <select
             value={selectedSample}
             onChange={(e) => handleSelectSample(e.target.value)}
-            className="bg-transparent text-slate-200 font-mono font-medium text-xs focus:outline-none cursor-pointer pr-1"
+            className="bg-transparent text-slate-100 font-semibold text-xs focus:outline-none cursor-pointer pr-1"
           >
             {samples.map((s) => (
-              <option key={s.id} value={s.id} className="bg-obsidian-900 text-slate-200 font-mono">
+              <option key={s.id} value={s.id} className="bg-slate-900 text-slate-100">
                 {s.name}
               </option>
             ))}
             {selectedSample === 'custom' && (
-              <option value="custom" className="bg-obsidian-900 text-slate-200 font-mono">
+              <option value="custom" className="bg-slate-900 text-slate-100">
                 Custom Upload
               </option>
             )}
@@ -135,64 +136,64 @@ export const TopNav: React.FC = () => {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center space-x-1.5 px-2.5 py-1 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-xs font-mono text-slate-300 transition-colors"
-          title="Upload Local Image (PNG, JPG, BMP, TIFF)"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-xs font-medium text-slate-200 transition-colors shadow-sm"
+          title="Upload Custom Image (PNG, JPG, BMP, TIFF)"
         >
-          <Upload size={12} className="text-slate-400" />
-          <span>Import</span>
+          <Upload size={13} className="text-cyan-400" />
+          <span>Upload</span>
         </button>
 
         {/* Telemetry Strip */}
         {metadata && (
-          <div className="hidden xl:flex items-center space-x-3 text-[11px] font-mono text-slate-400 pl-3 border-l border-hairline">
-            <span className="text-slate-300">{metadata.width}×{metadata.height}</span>
-            <span className="text-slate-600">/</span>
-            <span className="text-slate-300">{metadata.color_mode}</span>
-            <span className="text-slate-600">/</span>
+          <div className="hidden lg:flex items-center space-x-2 text-xs font-mono text-slate-400 pl-3 border-l border-slate-800">
+            <span className="text-slate-300 font-semibold">{metadata.width}×{metadata.height}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-purple-400 font-medium">{metadata.color_mode}</span>
+            <span className="text-slate-600">·</span>
             <span className="text-slate-400">{metadata.file_size_formatted}</span>
           </div>
         )}
       </div>
 
-      {/* Center: System Status */}
+      {/* Center: Live Status Indicator */}
       <div className="flex items-center space-x-2">
         {isProcessing ? (
-          <div className="flex items-center space-x-2 text-laser-cyan bg-obsidian-950 px-3 py-1 rounded border border-laser-cyan/30 text-xs font-mono">
-            <Loader2 size={12} className="animate-spin" />
+          <div className="flex items-center space-x-2 text-cyan-400 bg-cyan-950/50 px-3.5 py-1.5 rounded-full border border-cyan-500/30 text-xs font-medium animate-pulse shadow-sm">
+            <Loader2 size={13} className="animate-spin text-cyan-400" />
             <span>{statusMessage}</span>
           </div>
         ) : (
-          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400 bg-obsidian-950 px-3 py-1 rounded border border-hairline">
-            <span className="w-1.5 h-1.5 rounded-full bg-laser-emerald" />
-            <span className="text-slate-300">{statusMessage}</span>
+          <div className="hidden sm:flex items-center space-x-2 text-xs font-medium text-slate-300 bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-800 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{statusMessage}</span>
           </div>
         )}
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-1.5">
+      <div className="flex items-center space-x-2">
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
-          className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/60 rounded text-slate-300 transition-colors"
+          className="p-2 bg-slate-900 hover:bg-slate-850 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-800 rounded-xl text-slate-300 transition-colors shadow-sm"
           title="Undo Step (Ctrl+Z)"
         >
-          <Undo2 size={13} />
+          <Undo2 size={14} />
         </button>
         <button
           onClick={redo}
           disabled={historyIndex >= historyStack.length - 1}
-          className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/60 rounded text-slate-300 transition-colors"
+          className="p-2 bg-slate-900 hover:bg-slate-850 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-800 rounded-xl text-slate-300 transition-colors shadow-sm"
           title="Redo Step (Ctrl+Y)"
         >
-          <Redo2 size={13} />
+          <Redo2 size={14} />
         </button>
         <button
           onClick={resetProcessed}
-          className="flex items-center space-x-1 px-2.5 py-1 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-xs font-mono text-slate-300 transition-colors"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-xs font-medium text-slate-300 transition-colors shadow-sm"
           title="Reset Image to Raw Input"
         >
-          <RotateCcw size={12} className="text-slate-400" />
+          <RotateCcw size={13} className="text-slate-400" />
           <span className="hidden sm:inline">Reset</span>
         </button>
 
@@ -200,43 +201,58 @@ export const TopNav: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className="p-1.5 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-slate-400 hover:text-slate-200 transition-colors"
+            className="p-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-slate-400 hover:text-slate-200 transition-colors shadow-sm"
             title="Configure Backend Connection"
           >
-            <SlidersHorizontal size={13} />
+            <SlidersHorizontal size={14} />
           </button>
 
           {showConfig && (
-            <div className="absolute right-0 top-10 w-72 bg-obsidian-900 border border-slate-700 rounded-lg p-3 shadow-2xl z-50 text-xs font-mono space-y-2">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
-                Backend API Gateway
-              </span>
+            <div className="absolute right-0 top-12 w-80 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 shadow-2xl z-50 text-xs space-y-3 backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-white font-bold tracking-tight">
+                  Backend API Connection
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400">Hybrid Online</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Connect your local Python FastAPI backend for analytical NumPy/SciPy computing, or use the high-performance browser client engine.
+              </p>
               <input
                 type="text"
                 placeholder="http://localhost:8000/api"
                 value={customApiUrl}
                 onChange={(e) => setCustomApiUrl(e.target.value)}
-                className="w-full bg-obsidian-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-laser-cyan"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-xs font-mono focus:outline-none focus:border-cyan-500"
               />
               <div className="flex justify-between items-center pt-1">
-                <span className="text-[10px] text-slate-500">Leave blank for auto</span>
+                <button
+                  onClick={() => {
+                    setCustomApiUrl('');
+                    localStorage.removeItem('pixelrescue_api_url');
+                    window.location.reload();
+                  }}
+                  className="text-[10px] text-slate-400 hover:text-slate-200"
+                >
+                  Reset Default
+                </button>
                 <button
                   onClick={handleSaveApiUrl}
-                  className="px-2.5 py-1 bg-slate-200 hover:bg-white text-obsidian-950 font-bold rounded text-[11px]"
+                  className="px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold rounded-lg text-xs transition-all shadow-md shadow-cyan-500/20"
                 >
-                  Save & Apply
+                  Save & Connect
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Primary Action Button: Deliberate Off-White */}
+        {/* Primary Export Action */}
         <button
           onClick={handleExport}
-          className="flex items-center space-x-1.5 px-3 py-1 bg-slate-200 hover:bg-white text-obsidian-950 font-semibold rounded text-xs transition-colors shadow-sm"
+          className="flex items-center space-x-1.5 px-4 py-1.5 bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-lg shadow-cyan-500/25 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <Download size={13} />
+          <Download size={14} />
           <span>Export PNG</span>
         </button>
       </div>

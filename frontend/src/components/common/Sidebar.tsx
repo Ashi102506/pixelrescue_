@@ -11,17 +11,16 @@ import {
   History,
   LayoutDashboard,
   Aperture,
-  ExternalLink,
+  Cpu,
 } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
 import type { ModuleId } from '../../types/dip';
 
 interface NavItem {
   id: ModuleId;
-  code: string;
   label: string;
-  chapter: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
+  color: string;
   flagship?: boolean;
 }
 
@@ -34,84 +33,74 @@ const NAV_GROUPS: Array<{
     items: [
       {
         id: 'dashboard',
-        code: '00',
-        label: 'Workstation Overview',
-        chapter: 'System Telemetry',
+        label: 'Studio Dashboard',
         icon: LayoutDashboard,
+        color: 'text-sky-400',
       },
     ],
   },
   {
-    category: 'Digital Image Processing Laboratories',
+    category: 'DIP Laboratories',
     items: [
       {
         id: 'fundamentals',
-        code: '01',
         label: 'Image Fundamentals',
-        chapter: 'Sampling & Quantization',
-        icon: Grid,
+        icon: Layers,
+        color: 'text-cyan-400',
       },
       {
         id: 'enhancement',
-        code: '02',
         label: 'Enhancement Studio',
-        chapter: 'Point Ops & Histograms',
         icon: Sliders,
+        color: 'text-purple-400',
       },
       {
         id: 'spatial',
-        code: '03',
         label: 'Spatial Filtering',
-        chapter: '2D Convolution & Edges',
-        icon: Layers,
+        icon: Cpu,
+        color: 'text-emerald-400',
       },
       {
         id: 'frequency',
-        code: '04',
         label: 'SPECTRA FFT Lab',
-        chapter: 'Fourier Domain Analysis',
         icon: Radio,
+        color: 'text-violet-400',
         flagship: true,
       },
       {
         id: 'restoration',
-        code: '05',
         label: 'Image Restoration',
-        chapter: 'Degradation & Deconvolution',
         icon: Wand2,
+        color: 'text-amber-400',
       },
       {
         id: 'color',
-        code: '06',
         label: 'Color Processing',
-        chapter: 'RGB · CMY · HSI Spaces',
         icon: Palette,
+        color: 'text-rose-400',
       },
       {
         id: 'quality',
-        code: '07',
         label: 'Quality Assessment',
-        chapter: 'MSE · PSNR · SSIM Index',
         icon: BarChart3,
+        color: 'text-blue-400',
       },
     ],
   },
   {
-    category: 'Analysis & Automation',
+    category: 'Workflows & Data',
     items: [
       {
         id: 'pipeline',
-        code: 'DAG',
-        label: 'Visual Node Pipeline',
-        chapter: 'Multi-stage Execution Graph',
+        label: 'Visual Node DAG',
         icon: GitFork,
+        color: 'text-teal-400',
       },
       {
         id: 'history',
-        code: 'LOG',
         label: 'Experiment Archive',
-        chapter: 'Persistent Verification Data',
         icon: History,
+        color: 'text-slate-400',
       },
     ],
   },
@@ -121,35 +110,31 @@ export const Sidebar: React.FC = () => {
   const { activeModule, setActiveModule } = useWorkspaceStore();
 
   return (
-    <aside className="w-64 bg-obsidian-900 border-r border-hairline flex flex-col h-full select-none z-20 shrink-0">
+    <aside className="w-60 bg-slate-950 border-r border-slate-800/80 flex flex-col h-full select-none z-20 shrink-0 font-sans">
       {/* Brand Header */}
-      <div className="h-14 px-4 flex items-center justify-between border-b border-hairline bg-obsidian-950/70">
+      <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-950">
         <div className="flex items-center space-x-2.5">
-          <div className="w-7 h-7 rounded-md bg-obsidian-800 border border-slate-700/60 flex items-center justify-center text-laser-cyan">
-            <Aperture size={16} strokeWidth={2.2} />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-slate-950 shadow-md shadow-cyan-500/20">
+            <Aperture size={18} strokeWidth={2.4} />
           </div>
           <div>
             <div className="flex items-center space-x-1.5">
-              <span className="font-mono text-xs font-bold tracking-wider text-slate-100 uppercase">
-                PIXELRESCUE
+              <span className="font-extrabold text-sm tracking-tight text-white">
+                PIXEL<span className="text-cyan-400">RESCUE</span>
               </span>
             </div>
-            <p className="text-[10px] text-slate-500 font-mono tracking-tight leading-none mt-0.5">
-              DIP Scientific Console
+            <p className="text-[10px] text-slate-400 tracking-tight leading-none mt-0.5">
+              Digital Image Processing Suite
             </p>
           </div>
         </div>
-
-        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-obsidian-800 text-slate-400 border border-slate-700/50">
-          v1.0
-        </span>
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 px-2.5 py-3 space-y-4 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
         {NAV_GROUPS.map((group, gIdx) => (
           <div key={gIdx} className="space-y-1">
-            <div className="px-2 pb-1 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-medium">
+            <div className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold">
               {group.category}
             </div>
 
@@ -161,42 +146,25 @@ export const Sidebar: React.FC = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveModule(item.id)}
-                  className={`w-full flex items-center space-x-2.5 px-2.5 py-2 rounded-md text-left transition-all relative ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all duration-150 ${
                     isActive
-                      ? 'bg-obsidian-800 text-white border-l-2 border-laser-cyan shadow-sm pl-2'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-obsidian-850 border-l-2 border-transparent'
+                      ? 'bg-slate-800/90 text-white font-semibold shadow-sm border border-slate-700/80'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <span
-                    className={`font-mono text-[10px] w-5 shrink-0 ${
-                      isActive ? 'text-laser-cyan font-semibold' : 'text-slate-600'
-                    }`}
-                  >
-                    {item.code}
-                  </span>
-
-                  <Icon
-                    size={15}
-                    className={`shrink-0 ${
-                      isActive ? 'text-laser-cyan' : 'text-slate-500 group-hover:text-slate-300'
-                    }`}
-                  />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium truncate leading-tight">
-                        {item.label}
-                      </span>
-                      {item.flagship && (
-                        <span className="text-[8px] font-mono uppercase px-1 py-0.2 rounded bg-laser-cyan/10 text-laser-cyan border border-laser-cyan/30">
-                          SPECTRA
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono truncate block leading-none mt-1">
-                      {item.chapter}
-                    </span>
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <Icon
+                      size={16}
+                      className={`shrink-0 ${isActive ? item.color : 'text-slate-500'}`}
+                    />
+                    <span className="text-xs truncate">{item.label}</span>
                   </div>
+
+                  {item.flagship && (
+                    <span className="text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                      SPECTRA
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -204,16 +172,16 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      {/* Footer Textbook Calibration Badge */}
-      <div className="p-3 border-t border-hairline bg-obsidian-950/80 text-[10px] font-mono text-slate-500 space-y-1">
-        <div className="flex justify-between items-center text-slate-400">
-          <span>Standard</span>
+      {/* Footer Calibration Status */}
+      <div className="p-3.5 border-t border-slate-800/80 bg-slate-950/80 text-[11px] text-slate-400 space-y-1 font-mono">
+        <div className="flex justify-between items-center">
+          <span className="text-slate-400">DIP Standard</span>
           <span className="text-slate-300 font-medium">Gonzalez & Woods</span>
         </div>
-        <div className="flex justify-between items-center text-[9px] text-slate-600">
+        <div className="flex justify-between items-center text-[10px] text-slate-400">
           <span>Engine Status</span>
-          <span className="text-laser-emerald font-semibold flex items-center space-x-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-laser-emerald inline-block" />
+          <span className="text-emerald-400 font-semibold flex items-center space-x-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>Operational</span>
           </span>
         </div>

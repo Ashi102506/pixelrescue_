@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Grid,
+  Sparkles,
   Sliders,
   Layers,
   Radio,
@@ -8,284 +8,345 @@ import {
   Palette,
   BarChart3,
   GitFork,
+  History,
   ArrowRight,
+  Zap,
   Activity,
+  Maximize2,
+  RotateCcw,
   CheckCircle2,
-  Terminal,
+  FileCode2,
+  BookOpen,
+  Cpu,
+  Eye,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/useWorkspaceStore';
-import type { ModuleId } from '../../types/dip';
+import { api } from '../../services/api';
+import { ImageViewer } from '../common/ImageViewer';
+import { ModuleId } from '../../types/dip';
 
 export const DashboardView: React.FC = () => {
-  const { setActiveModule, metadata, originalImage } = useWorkspaceStore();
+  const {
+    originalImage,
+    processedImage,
+    metadata,
+    activeAlgorithm,
+    setActiveModule,
+    setProcessedImage,
+    setProcessing,
+    resetProcessed,
+  } = useWorkspaceStore();
 
-  const labModules: Array<{
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string>('original');
+
+  // Quick interactive 1-click filter demo right on the dashboard
+  const handleQuickFilter = async (name: string) => {
+    if (!originalImage) return;
+    setActiveQuickFilter(name);
+
+    if (name === 'original') {
+      resetProcessed();
+      return;
+    }
+
+    setProcessing(true, `Running live ${name}...`);
+    try {
+      if (name === 'equalize') {
+        const res = await api.equalizeHistogram(originalImage);
+        setProcessedImage(res.image, 'Histogram Equalization');
+      } else if (name === 'sobel') {
+        const res = await api.applySpatialFilter({ image: originalImage, filter_type: 'sobel' });
+        setProcessedImage(res.image, 'Sobel Edge Detection');
+      } else if (name === 'gaussian') {
+        const res = await api.applySpatialFilter({ image: originalImage, filter_type: 'gaussian', kernel_size: 7, sigma: 1.5 });
+        setProcessedImage(res.image, 'Gaussian Smoothing (7×7)');
+      } else if (name === 'negative') {
+        const res = await api.applyTransform({ image: originalImage, operation: 'negative' });
+        setProcessedImage(res.image, 'Negative Transformation');
+      } else if (name === 'gamma') {
+        const res = await api.applyTransform({ image: originalImage, operation: 'gamma', gamma: 0.6 });
+        setProcessedImage(res.image, 'Gamma Expansion (γ=0.6)');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const labs: Array<{
     id: ModuleId;
     code: string;
     title: string;
-    chapter: string;
-    formula: string;
+    subtitle: string;
     description: string;
-    keyMetrics: string[];
+    icon: any;
+    color: string;
+    glow: string;
+    accentBorder: string;
     flagship?: boolean;
+    chapter: string;
   }> = [
     {
       id: 'fundamentals',
       code: '01',
       title: 'Image Fundamentals',
+      subtitle: 'Sampling & Quantization',
+      description: 'Spatial grid downsampling, intensity quantization levels, pixel neighborhood distances, and 4/8-connectivity.',
+      icon: Layers,
+      color: 'text-cyan-400',
+      glow: 'from-cyan-500/20 to-transparent',
+      accentBorder: 'hover:border-cyan-500/50',
       chapter: 'Gonzalez & Woods, Ch. 2',
-      formula: 'f[n,m] \\in \\{0, \\dots, L-1\\}',
-      description: 'Spatial coordinate sampling, intensity quantization false contouring, pixel metrics (Euclidean, D4, D8), and connectivity.',
-      keyMetrics: ['Sampling aliasing', '1 to 8-bit depth', 'Distance metrics'],
     },
     {
       id: 'enhancement',
       code: '02',
       title: 'Enhancement Studio',
+      subtitle: 'Point Ops & Histograms',
+      description: 'Point transformations (negative, log, gamma power-law, contrast stretch) and discrete PDF/CDF equalization.',
+      icon: Sliders,
+      color: 'text-purple-400',
+      glow: 'from-purple-500/20 to-transparent',
+      accentBorder: 'hover:border-purple-500/50',
       chapter: 'Gonzalez & Woods, Ch. 3',
-      formula: 's_k = (L-1) \\sum_{j=0}^{k} p_r(r_j)',
-      description: 'Point transformations (negative, log, gamma power-law, contrast stretching) and discrete probability histogram equalization.',
-      keyMetrics: ['CDF linearization', 'Piecewise linear', 'Adaptive threshold'],
     },
     {
       id: 'spatial',
       code: '03',
       title: 'Spatial Filtering',
+      subtitle: '2D Convolution Lab',
+      description: 'Real-time spatial convolution: Gaussian, median, Laplacian 4/8, Sobel, Prewitt, and step-by-step elementwise math.',
+      icon: Cpu,
+      color: 'text-emerald-400',
+      glow: 'from-emerald-500/20 to-transparent',
+      accentBorder: 'hover:border-emerald-500/50',
       chapter: 'Gonzalez & Woods, Ch. 3',
-      formula: 'g(x,y) = \\sum \\sum w(s,t) f(x+s,y+t)',
-      description: 'Discrete 2D convolution kernel engine with an interactive element-wise step-by-step matrix calculator and edge operators.',
-      keyMetrics: ['Gaussian & Median', 'Laplacian 4/8', 'Sobel & Prewitt'],
     },
     {
       id: 'frequency',
       code: '04',
       title: 'SPECTRA FFT Lab',
-      chapter: 'Gonzalez & Woods, Ch. 4',
-      formula: 'G(u,v) = F(u,v) \\cdot H(u,v)',
-      description: '2D Discrete Fourier Transform, centered magnitude & phase spectra, Ideal, Butterworth, and Gaussian low/high-pass filtering.',
-      keyMetrics: ['4 Synchronous panels', 'Gibbs ringing demo', 'Radial H(D) profile'],
+      subtitle: '2D Fourier Domain Filtering',
+      description: '4 synchronized panels: Spatial, Centered Log-Magnitude Spectrum, Transfer Function Mask, and Reconstructed Output.',
+      icon: Radio,
+      color: 'text-violet-400',
+      glow: 'from-violet-500/25 to-transparent',
+      accentBorder: 'hover:border-violet-500/60',
       flagship: true,
+      chapter: 'Gonzalez & Woods, Ch. 4',
     },
     {
       id: 'restoration',
       code: '05',
       title: 'Image Restoration',
+      subtitle: 'Degradation & Deconvolution',
+      description: 'PSF motion blur & atmospheric degradation models, Wiener deconvolution (MMSE), and inverse filtering challenge.',
+      icon: Wand2,
+      color: 'text-amber-400',
+      glow: 'from-amber-500/20 to-transparent',
+      accentBorder: 'hover:border-amber-500/50',
       chapter: 'Gonzalez & Woods, Ch. 5',
-      formula: '\\hat{F} = [H^* / (|H|^2 + K)] G',
-      description: 'Degradation modeling (motion blur PSF, atmospheric blur, impulse & gaussian noise) and Wiener / constrained inverse deconvolution.',
-      keyMetrics: ['Restoration challenge', 'PSNR delta verification', 'NSR regularizer K'],
     },
     {
       id: 'color',
       code: '06',
       title: 'Color Processing',
+      subtitle: 'RGB · CMY · HSI Space',
+      description: 'Exact trigonometric HSI forward and inverse conversion across 3 sectors, decoupled luminance, and pseudocolor slicing.',
+      icon: Palette,
+      color: 'text-rose-400',
+      glow: 'from-rose-500/20 to-transparent',
+      accentBorder: 'hover:border-rose-500/50',
       chapter: 'Gonzalez & Woods, Ch. 6',
-      formula: 'H, S, I \\leftrightarrow R, G, B',
-      description: 'Full trigonometric HSI forward and inverse conversion across 3 sectors, additive/subtractive primaries, and pseudo-color slicing.',
-      keyMetrics: ['Decoupled intensity', 'Colormap generation', 'CMY subtractive'],
     },
     {
       id: 'quality',
       code: '07',
       title: 'Quality Assessment',
-      chapter: 'Gonzalez & Woods, Ch. 8 & 11',
-      formula: '10 \\log_{10}(255^2 / \\text{MSE})',
-      description: 'Objective statistical measurement of reconstruction fidelity via MSE, PSNR (dB), SSIM index, and Shannon information entropy.',
-      keyMetrics: ['PSNR & MSE (dB)', 'Structural SSIM', 'Shannon entropy (b/px)'],
+      subtitle: 'MSE · PSNR · SSIM Metrology',
+      description: 'Objective mathematical fidelity assessment: PSNR (dB), SSIM index, Shannon entropy, and error heatmap visualization.',
+      icon: BarChart3,
+      color: 'text-blue-400',
+      glow: 'from-blue-500/20 to-transparent',
+      accentBorder: 'hover:border-blue-500/50',
+      chapter: 'Gonzalez & Woods, Ch. 8',
     },
     {
       id: 'pipeline',
       code: 'DAG',
       title: 'Visual Node Pipeline',
-      chapter: 'Multi-stage DIP DAG',
-      formula: 'v_{i} = T_i(v_{i-1})',
-      description: 'Directed acyclic graph execution engine with intermediate image previews, execution profiling, and reproducible pipelines.',
-      keyMetrics: ['Topological sort', 'Node previews', 'Latency profiling'],
+      subtitle: 'DAG Multi-Stage Execution',
+      description: 'Node-based visual DAG editor to construct, chain, and execute multi-stage DIP pipelines with live thumbnails.',
+      icon: GitFork,
+      color: 'text-teal-400',
+      glow: 'from-teal-500/20 to-transparent',
+      accentBorder: 'hover:border-teal-500/50',
+      chapter: 'Composable Pipeline',
     },
   ];
 
   return (
-    <div className="p-6 space-y-6 overflow-y-auto h-full max-w-7xl mx-auto select-none">
-      {/* Console Status Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-hairline gap-3">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-base font-semibold text-slate-100 tracking-tight">
-              Workstation Console
-            </h1>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-obsidian-850 text-slate-400 border border-hairline">
-              Online
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 font-mono mt-0.5">
-            Digital Image Processing 4th Ed. · Mathematical Transparency & Algorithm Verification
-          </p>
-        </div>
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full font-sans">
+      {/* Top Hero Banner */}
+      <div className="relative rounded-3xl overflow-hidden p-8 border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900/90 to-indigo-950/40 shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl -z-10 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-        {/* Quick Launch Buttons */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setActiveModule('frequency')}
-            className="px-3 py-1.5 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-700/60 rounded text-xs font-mono text-slate-200 flex items-center space-x-1.5 transition-colors"
-          >
-            <span>SPECTRA FFT</span>
-            <ArrowRight size={12} className="text-laser-cyan" />
-          </button>
-          <button
-            onClick={() => setActiveModule('pipeline')}
-            className="px-3 py-1.5 bg-slate-200 hover:bg-white text-obsidian-950 rounded text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors"
-          >
-            <GitFork size={12} />
-            <span>Open Node DAG</span>
-          </button>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">
+              <Zap size={13} className="text-cyan-400" />
+              <span>ACADEMIC STANDARD · GONZALEZ & WOODS 4TH EDITION</span>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+              PIXEL<span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">RESCUE</span>
+            </h1>
+
+            <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+              Advanced Digital Image Processing, Mathematical Restoration & 2D Fourier Spectral Analysis Suite.
+              Features complete formula transparency, tensor inspection, and objective quality verification.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                onClick={() => setActiveModule('frequency')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Radio size={14} />
+                <span>Launch SPECTRA FFT Lab</span>
+              </button>
+
+              <button
+                onClick={() => setActiveModule('pipeline')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 font-medium text-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <GitFork size={14} />
+                <span>Open Visual Node DAG</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Active Metrics Pill */}
+          <div className="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md min-w-[240px] space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">Target Image:</span>
+              <span className="text-cyan-400 font-bold">{metadata?.filename || 'cameraman.png'}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">Dimensions:</span>
+              <span className="text-white font-bold">{metadata ? `${metadata.width} × ${metadata.height} px` : '256 × 256 px'}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">Dynamic Range:</span>
+              <span className="text-slate-200">{metadata ? `${metadata.bit_depth}-bit [0..255]` : '8-bit [0..255]'}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">Color Primaries:</span>
+              <span className="text-purple-300">{metadata?.color_mode || 'RGB'}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Primary Telemetry Board: The Hero Moment */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Active Frame Inspection Card */}
-        <div className="bg-obsidian-900 border border-hairline rounded-lg p-4 flex flex-col justify-between">
+      {/* Interactive Studio Bench (Live Image & 1-Click Operations) */}
+      <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
           <div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-2">
-              <span>Calibrated Optical Frame</span>
-              <span className="text-laser-cyan font-bold">{metadata?.color_mode || 'RGB'}</span>
+            <div className="flex items-center space-x-2">
+              <Eye size={16} className="text-cyan-400" />
+              <h2 className="text-base font-bold text-white tracking-tight">Interactive Studio Bench</h2>
             </div>
-
-            <div className="flex items-center space-x-4 my-2">
-              {originalImage ? (
-                <div className="w-20 h-20 rounded border border-hairline overflow-hidden bg-black shrink-0">
-                  <img src={originalImage} alt="Active" className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <div className="w-20 h-20 rounded border border-hairline bg-obsidian-950 flex items-center justify-center text-slate-600 shrink-0">
-                  No Image
-                </div>
-              )}
-
-              <div className="space-y-1 font-mono text-xs">
-                <div className="text-slate-200 font-semibold truncate max-w-[170px]">
-                  {metadata?.filename || 'cameraman.png'}
-                </div>
-                <div className="text-slate-400 text-[11px]">
-                  {metadata ? `${metadata.width} × ${metadata.height} px` : '256 × 256 px'}
-                </div>
-                <div className="text-slate-500 text-[10px]">
-                  {metadata?.file_size_formatted || '64.0 KB'} · 8-bit dynamic range
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Live split before/after viewer with real-time mathematical operations applied in the browser.
+            </p>
           </div>
 
-          <div className="pt-3 border-t border-hairline flex justify-between text-[11px] font-mono text-slate-400">
-            <span>Pixel Count:</span>
-            <span className="text-slate-200 font-medium">
-              {metadata?.total_pixels?.toLocaleString() || '65,536'}
-            </span>
+          {/* Quick Filters Buttons */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[
+              { id: 'original', label: 'Original' },
+              { id: 'equalize', label: 'Equalize' },
+              { id: 'gaussian', label: 'Gaussian Blur' },
+              { id: 'sobel', label: 'Sobel Edges' },
+              { id: 'negative', label: 'Negative' },
+              { id: 'gamma', label: 'Gamma (γ=0.6)' },
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => handleQuickFilter(btn.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeQuickFilter === btn.id
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                    : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-slate-700/60'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Algorithm Verification Stats */}
-        <div className="bg-obsidian-900 border border-hairline rounded-lg p-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-2">
-              <span>Mathematical Test Suite</span>
-              <span className="text-laser-emerald font-semibold">41 / 41 PASS</span>
-            </div>
-
-            <div className="space-y-2 py-1">
-              <div className="flex justify-between items-baseline">
-                <span className="text-2xl font-bold font-mono text-slate-100">100%</span>
-                <span className="text-[11px] font-mono text-laser-emerald">Deterministic Validation</span>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Tested against analytical mathematical references for 2D FFT, Wiener deconvolution, discrete histogram CDF, and HSI trigonometric sector mapping.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-hairline flex items-center justify-between text-[11px] font-mono text-slate-400">
-            <span>Core Engines:</span>
-            <span className="text-slate-200">FastAPI · NumPy · SciPy</span>
-          </div>
-        </div>
-
-        {/* Standard Academic Reference */}
-        <div className="bg-obsidian-900 border border-hairline rounded-lg p-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-2">
-              <span>Textbook Citation</span>
-              <span className="text-slate-400">4th Edition</span>
-            </div>
-
-            <div className="space-y-1.5 py-1">
-              <div className="text-xs font-semibold text-slate-200">
-                Digital Image Processing
-              </div>
-              <div className="text-[11px] text-slate-400 font-mono">
-                Rafael C. Gonzalez & Richard E. Woods
-              </div>
-              <p className="text-[11px] text-slate-500 leading-tight pt-1">
-                Chapters 2 through 11: Digitization, spatial convolution, frequency filtering, image restoration, color spaces, and quality metrics.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-hairline flex justify-between text-[11px] font-mono text-slate-400">
-            <span>Transparency:</span>
-            <span className="text-laser-cyan">Formula & Tensor Inspection</span>
-          </div>
+        {/* Viewport Box */}
+        <div className="h-[420px] w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col">
+          <ImageViewer />
         </div>
       </div>
 
       {/* Laboratory Benches Grid */}
-      <div className="space-y-3 pt-2">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-mono uppercase tracking-widest text-slate-500 font-medium">
-            Active Laboratory Benches
-          </h2>
-          <span className="text-[10px] font-mono text-slate-600">8 Modules Available</span>
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">Digital Image Processing Laboratories</h2>
+            <p className="text-xs text-slate-400">8 dedicated scientific environments mapped to classic DIP chapters.</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {labModules.map((m) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {labs.map((lab) => {
+            const Icon = lab.icon;
             return (
               <div
-                key={m.id}
-                onClick={() => setActiveModule(m.id)}
-                className="group bg-obsidian-900 hover:bg-obsidian-850 border border-hairline hover:border-slate-600 rounded-lg p-4 cursor-pointer transition-all duration-150 flex flex-col justify-between relative"
+                key={lab.id}
+                onClick={() => setActiveModule(lab.id)}
+                className={`group relative rounded-2xl p-5 border border-slate-800/80 bg-slate-900/50 hover:bg-slate-850 backdrop-blur-md transition-all duration-200 cursor-pointer flex flex-col justify-between hover:shadow-xl hover:-translate-y-0.5 ${lab.accentBorder}`}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono text-slate-500 font-bold">
-                      {m.code}
-                    </span>
-                    {m.flagship && (
-                      <span className="text-[8px] font-mono uppercase px-1.5 py-0.5 rounded bg-laser-cyan/10 text-laser-cyan border border-laser-cyan/30">
-                        FLAGSHIP
-                      </span>
-                    )}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={`w-10 h-10 rounded-xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-center ${lab.color} group-hover:scale-105 transition-transform`}>
+                      <Icon size={20} />
+                    </div>
+
+                    <div className="flex items-center space-x-1.5">
+                      {lab.flagship && (
+                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/30">
+                          FLAGSHIP
+                        </span>
+                      )}
+                      <span className="text-xs font-mono font-bold text-slate-500">{lab.code}</span>
+                    </div>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-slate-100 group-hover:text-laser-cyan transition-colors">
-                    {m.title}
-                  </h3>
-
-                  <div className="text-[10px] font-mono text-slate-500 mt-0.5">
-                    {m.chapter}
+                  <div>
+                    <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      {lab.title}
+                    </h3>
+                    <p className="text-xs font-medium text-slate-400">{lab.subtitle}</p>
                   </div>
 
-                  <p className="text-[11px] text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                    {m.description}
+                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                    {lab.description}
                   </p>
-
-                  <div className="mt-3 py-1.5 px-2 bg-obsidian-950 rounded border border-hairline-subtle font-mono text-[10px] text-slate-300 text-center truncate">
-                    <code>{m.formula}</code>
-                  </div>
                 </div>
 
-                <div className="mt-4 pt-2.5 border-t border-hairline flex items-center justify-between text-[11px] font-mono text-slate-500 group-hover:text-slate-300 transition-colors">
-                  <span>Enter Bench</span>
-                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                <div className="pt-4 mt-3 border-t border-slate-800/70 flex items-center justify-between text-xs text-slate-400 group-hover:text-cyan-400 font-medium transition-colors">
+                  <span className="text-[10px] font-mono text-slate-500">{lab.chapter}</span>
+                  <div className="flex items-center space-x-1">
+                    <span>Enter Lab</span>
+                    <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </div>
             );

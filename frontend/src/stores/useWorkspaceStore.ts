@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { ModuleId, ImageMetadata, QualityMetrics } from '../types/dip';
+import { DEFAULT_SAMPLES } from '../assets/defaultSamples';
+
+const initialSample = DEFAULT_SAMPLES[0];
 
 interface WorkspaceState {
   activeModule: ModuleId;
@@ -43,14 +46,14 @@ interface WorkspaceState {
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   activeModule: 'dashboard',
-  originalImage: null,
-  processedImage: null,
-  historyStack: [],
-  historyIndex: -1,
-  metadata: null,
-  activeAlgorithm: 'None',
+  originalImage: initialSample.image,
+  processedImage: initialSample.image,
+  historyStack: [initialSample.image],
+  historyIndex: 0,
+  metadata: initialSample.metadata,
+  activeAlgorithm: 'Cameraman Benchmark',
   isProcessing: false,
-  statusMessage: 'Ready',
+  statusMessage: 'Ready (256×256 px)',
   comparisonMode: 'split',
   splitPosition: 50,
   zoomLevel: 1.0,
