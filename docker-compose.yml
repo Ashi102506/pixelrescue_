@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  pixelrescue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pixelrescue_app
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    volumes:
+      - pixelrescue_storage:/app/backend/storage
+    restart: unless-stopped
+
+volumes:
+  pixelrescue_storage:
+    driver: local
